@@ -2,6 +2,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Command } from "commander";
+import { writeWorkItemsToCache } from "@workcue/cache-sqlite";
 import {
   createInitialConfig,
   defaultConfigPath,
@@ -89,6 +90,7 @@ program
 
     lines.push(config.outputs.markdown.enabled ? "Markdown output: enabled" : "Markdown output: disabled");
     lines.push(config.outputs.dailyNote.enabled ? "Daily note output: enabled" : "Daily note output: disabled");
+    lines.push(config.cache.sqlite.enabled ? `SQLite cache: enabled ${config.cache.sqlite.path}` : "SQLite cache: disabled");
 
     process.stdout.write(`${lines.join("\n")}\n`);
   });
@@ -103,9 +105,11 @@ program
   .option("--date <date>", "Sync date in YYYY-MM-DD format.", todayDate())
   .option("--json", "Print a JSON payload.")
   .option("--output <path>", "Write a JSON sync payload to a file.")
+  .option("--cache <path>", "Write synced work items to a SQLite cache.")
   .action(
     async (options: {
       assignee: string;
+      cache?: string;
       config?: string;
       date: string;
       demo?: boolean;
@@ -115,9 +119,24 @@ program
     }) => {
       const result = await syncWorkCueSources(buildRunOptions(options));
       const payload = buildSyncPayload(result);
+      const cachePath = options.cache ?? (result.config?.cache.sqlite.enabled ? result.config.cache.sqlite.path : undefined);
 
       if (options.output) {
         await writeJsonFile(options.output, payload);
+      }
+
+      if (cachePath) {
+        const cacheResult = await writeWorkItemsToCache({
+          dbPath: cachePath,
+          items: result.items,
+          sourceCounts: result.sourceCounts,
+          syncedAt: result.syncedAt
+        });
+        payload.cache = {
+          dbPath: cacheResult.dbPath,
+          itemCount: cacheResult.itemCount,
+          syncedAt: cacheResult.syncedAt
+        };
       }
 
       process.stdout.write(options.json ? `${JSON.stringify(payload, null, 2)}\n` : renderSyncText(payload));
@@ -268,6 +287,10 @@ function renderSyncText(payload: Record<string, unknown>): string {
     `Sources: ${formatSourceCounts(payload.sourceCounts as Record<string, number>)}`,
     ""
   ];
+  if (payload.cache && typeof payload.cache === "object") {
+    const cache = payload.cache as Record<string, unknown>;
+    lines.push(`Cache: ${cache.dbPath}`, "");
+  }
 
   for (const item of items) {
     lines.push(`- ${item.id} [${item.source}/${item.status}] ${item.title}`);

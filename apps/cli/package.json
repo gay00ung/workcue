@@ -10,6 +10,7 @@
     "start": "tsx src/index.ts"
   },
   "dependencies": {
+    "@workcue/cache-sqlite": "workspace:*",
     "@workcue/config": "workspace:*",
     "@workcue/runtime": "workspace:*",
     "commander": "^14.0.0"
