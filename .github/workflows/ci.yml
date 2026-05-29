@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Typecheck and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.3
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - name: Public safety scan
+        run: |
+          PRIVATE_PATTERN='/''Users/|/''Desktop/projects|g''mail|ghp_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}'
+          if git ls-files -co --exclude-standard \
+            | xargs rg -n "$PRIVATE_PATTERN"; then
+            echo "Potential private path or token value found."
+            exit 1
+          fi
+          echo "Public safety scan passed."
