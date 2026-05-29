@@ -15,71 +15,71 @@
   <img alt="License Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-64748b?style=for-the-badge">
 </p>
 
-Wake up to the right work.
+업무 도구는 그대로, 오늘 할 일만 자동으로.
 
-WorkCue is a local-first morning planner for work scattered across existing tools. It does not replace your todo app or kanban board. It reads the places where work already lives, ranks what deserves attention today, and explains why.
+WorkCue는 Jira, GitHub, Obsidian 같은 기존 업무 도구에 흩어진 일을 읽고 오늘 집중해야 할 작업을 근거와 함께 추천하는 로컬 우선 morning planner다. 새로운 todo 앱이나 칸반 보드를 만들지 않는다. 이미 쓰는 업무 시스템을 source of truth로 유지하고, 그 위에 아침 브리핑 레이어를 얹는다.
 
 ## Demo
 
-The Phase 0 demo runs with built-in fixture data. It does not require API tokens or external services.
+내장 fixture만으로 실행할 수 있다. API token이나 외부 서비스가 필요 없다.
 
 ```bash
 pnpm install
 pnpm demo --date 2026-05-29
 ```
 
-You can also run the CLI package directly:
+CLI package를 직접 실행할 수도 있다.
 
 ```bash
 pnpm --filter workcue start today --demo --date 2026-05-29
 ```
 
-To read local Obsidian tasks:
+로컬 Obsidian vault의 unchecked task를 읽으려면:
 
 ```bash
 pnpm today --obsidian-vault /path/to/vault --date 2026-05-29
 ```
 
-To inspect normalized source items without generating a brief:
+brief를 만들기 전에 정규화된 source item만 확인하려면:
 
 ```bash
 pnpm --filter workcue start sync --demo --date 2026-05-29
 ```
 
-To write synced items to a local SQLite cache:
+sync 결과를 로컬 SQLite cache에 저장하려면:
 
 ```bash
 pnpm --filter workcue start sync --demo --date 2026-05-29 --cache .workcue/workcue.sqlite
 ```
 
-To explain one ranked work item:
+특정 추천 항목의 점수 근거를 설명하려면:
 
 ```bash
 pnpm --filter workcue start explain github:pr-184 --demo --date 2026-05-29
 ```
 
-The Obsidian connector reads unchecked markdown tasks such as:
+Obsidian connector는 이런 markdown task를 읽는다.
 
 ```markdown
-- [ ] Review billing PR #work 📅 2026-05-30 🔼 [estimate:: 25m]
+- [ ] Review billing PR #work 2026-05-30 [estimate:: 25m]
 - [ ] Follow up with design #waiting [due:: 2026-05-31]
 ```
 
-To write a brief to a markdown file:
+brief를 markdown 파일로 저장하려면:
 
 ```bash
 pnpm today --obsidian-vault /path/to/vault --output ./briefs/2026-05-29.md
 ```
 
-To upsert a WorkCue-managed block into an existing daily note:
+기존 Obsidian daily note에 WorkCue block만 upsert하려면:
 
 ```bash
 pnpm today --obsidian-vault /path/to/vault --daily-note /path/to/vault/Daily/2026-05-29.md
 ```
 
-Only the `<!-- workcue:start -->` to `<!-- workcue:end -->` block is replaced on later runs. Other note content is preserved.
+반복 실행 시 `<!-- workcue:start -->`부터 `<!-- workcue:end -->` 사이의 managed block만 교체된다. 사용자가 직접 작성한 note 내용은 보존된다.
 
-Example output:
+예시 출력:
 
 ```markdown
 # WorkCue Morning Brief - 2026-05-29
@@ -95,33 +95,32 @@ Top recommendation: Review PR #184: Fix payment retry race condition
    - production 영향이 있는 작업입니다.
 ```
 
-## Current Scope
+## 현재 범위
 
-- TypeScript and pnpm monorepo scaffold
-- Core WorkItem, Signal, Recommendation, and Brief models
-- Deterministic demo scoring
-- Local Obsidian markdown task connector
-- GitHub Issues and PR connector package
-- Jira issue connector package
+- TypeScript와 pnpm 기반 monorepo
+- WorkItem, Signal, Recommendation, Brief core model
+- deterministic demo scoring
+- Obsidian markdown task connector
+- GitHub Issues/PR connector
+- Jira issue connector
 - Markdown morning brief renderer
 - Markdown file output
 - Obsidian daily note upsert
-- MCP stdio server with `workcue_sync`, `workcue_today`, `workcue_explain`, and `workcue_doctor`
-- Local SQLite cache for sync results
-- Dockerfile for local container runs
+- MCP stdio server: `workcue_sync`, `workcue_today`, `workcue_explain`, `workcue_doctor`
+- sync 결과용 로컬 SQLite cache
+- 로컬 container 실행용 Dockerfile
 - CLI commands: `workcue sync`, `workcue explain`, `workcue today --demo`
-- CLI source option: `--obsidian-vault <path>`
 
-## Product Principles
+## 제품 원칙
 
-- No new todo app
-- Read-first, write-later
-- Deterministic scoring before optional LLM summaries
-- Evidence on every recommendation
-- Local-first and self-hostable by default
-- Pluggable sources and outputs
+- 새로운 todo 앱을 만들지 않는다.
+- 초기 버전은 read-first, write-later 원칙을 지킨다.
+- optional LLM summary보다 deterministic scoring을 먼저 수행한다.
+- 모든 추천에는 evidence가 있어야 한다.
+- local-first와 self-hostable을 기본으로 한다.
+- source와 output은 pluggable하게 확장한다.
 
-## Development
+## 개발
 
 ```bash
 pnpm install
@@ -130,15 +129,15 @@ pnpm test
 pnpm --filter workcue start today --demo
 ```
 
-## Local Config
+## 로컬 설정
 
-Create a local config file:
+로컬 config 파일 생성:
 
 ```bash
 pnpm --filter workcue start init --output .workcue/config.yml
 ```
 
-Use local Obsidian and output paths:
+Obsidian과 output path를 함께 설정:
 
 ```bash
 pnpm --filter workcue start init \
@@ -148,19 +147,19 @@ pnpm --filter workcue start init \
   --daily-note /path/to/vault/Daily/{{date}}.md
 ```
 
-Check the config:
+config 점검:
 
 ```bash
 pnpm --filter workcue start doctor --config .workcue/config.yml
 ```
 
-Run from config:
+config 기반 실행:
 
 ```bash
 pnpm today --config .workcue/config.yml --date 2026-05-29
 ```
 
-GitHub config stores an environment variable name, not the token value:
+GitHub config는 token 값이 아니라 환경변수 이름만 저장한다.
 
 ```yaml
 sources:
@@ -173,7 +172,7 @@ sources:
     user: your-github-login
 ```
 
-Jira config also stores environment variable names, not credential values:
+Jira config도 credential 값이 아니라 환경변수 이름만 저장한다.
 
 ```yaml
 sources:
@@ -186,7 +185,7 @@ sources:
       - assignee = currentUser() AND statusCategory != Done
 ```
 
-Local config generated by `workcue init` enables SQLite cache by default:
+`workcue init`으로 생성되는 local config는 SQLite cache를 기본으로 켠다.
 
 ```yaml
 cache:
@@ -195,7 +194,7 @@ cache:
     path: .workcue/workcue.sqlite
 ```
 
-You can tune deterministic scoring with signal multipliers:
+deterministic scoring은 signal multiplier로 조정할 수 있다.
 
 ```yaml
 scoring:
@@ -205,7 +204,7 @@ scoring:
     waiting_external: 0.7
 ```
 
-LLM summaries are disabled by default. To enable an OpenAI-compatible endpoint or Ollama, configure `llm.enabled` and keep API key values in environment variables:
+LLM summary는 기본적으로 꺼져 있다. OpenAI-compatible endpoint나 Ollama를 켜려면 `llm.enabled`를 설정하고 API key 값은 환경변수에 둔다.
 
 ```yaml
 llm:
@@ -218,22 +217,22 @@ llm:
 
 ## MCP Server
 
-WorkCue ships a local MCP server so Codex, Claude Desktop, Cursor, and other MCP clients can ask for the same morning brief without WorkCue becoming a new todo database.
+WorkCue는 Codex, Claude Desktop, Cursor 같은 MCP client에서 같은 morning brief를 조회할 수 있도록 로컬 MCP server를 제공한다.
 
-Available tools:
+제공 tools:
 
-- `workcue_sync`: reads configured sources and returns normalized work items without raw connector payloads.
-- `workcue_today`: generates a brief from demo data, an Obsidian vault, or configured sources.
-- `workcue_explain`: explains the deterministic score and recommendation reasons for one work item.
-- `workcue_doctor`: checks config readiness without fetching external work items.
+- `workcue_sync`: source를 읽고 raw connector payload 없는 normalized item summary를 반환
+- `workcue_today`: demo data, Obsidian vault, configured sources에서 morning brief 생성
+- `workcue_explain`: 특정 work item의 deterministic score와 추천 근거 설명
+- `workcue_doctor`: 외부 source fetch 없이 config readiness 점검
 
-Run the stdio server locally:
+stdio server 실행:
 
 ```bash
 pnpm mcp
 ```
 
-Example MCP client config:
+MCP client config 예시:
 
 ```json
 {
@@ -246,7 +245,7 @@ Example MCP client config:
 }
 ```
 
-Example tool arguments:
+tool arguments 예시:
 
 ```json
 {
@@ -256,9 +255,9 @@ Example tool arguments:
 }
 ```
 
-Use `configPath` to point the MCP server at a local `.workcue/config.yml`. Credential values stay in environment variables such as `GITHUB_TOKEN`, `JIRA_EMAIL`, and `JIRA_API_TOKEN`; WorkCue config stores only their variable names.
+`configPath`로 로컬 `.workcue/config.yml`을 지정할 수 있다. `GITHUB_TOKEN`, `JIRA_EMAIL`, `JIRA_API_TOKEN` 같은 credential 값은 환경변수에 두고, WorkCue config에는 환경변수 이름만 저장한다.
 
-More docs:
+## 문서
 
 - [Automation](docs/automation.md)
 - [Local cache](docs/cache.md)
@@ -270,4 +269,4 @@ More docs:
 - [GitHub PR review radar recipe](docs/recipes/github-pr-review-radar.md)
 - [Brand image prompts](docs/brand-image-prompts.md)
 
-The project harness lives in `.codex/harnesses/workcue-engineering/`. Local paths belong in `.codex/local.env`, which is ignored by Git. Use `.codex/local.example.env` as the template.
+프로젝트 하네스는 `.codex/harnesses/workcue-engineering/`에 있다. 로컬 경로는 Git에 올라가지 않는 `.codex/local.env`에만 둔다. 공개 template은 `.codex/local.example.env`를 사용한다.
