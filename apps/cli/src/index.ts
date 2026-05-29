@@ -10,6 +10,7 @@ import {
   type WorkCueConfig
 } from "@workcue/config";
 import { syncGitHub } from "@workcue/connector-github";
+import { syncJira, type SyncJiraOptions } from "@workcue/connector-jira";
 import { syncObsidianVault, type SyncObsidianVaultOptions } from "@workcue/connector-obsidian";
 import { buildDemoWorkItems, createBrief, renderBriefMarkdown, type WorkItem } from "@workcue/core";
 import { upsertDailyNoteSection, writeMarkdownFile } from "@workcue/output-markdown";
@@ -73,6 +74,16 @@ program
       lines.push("GitHub: disabled");
     }
 
+    if (config.sources.jira.enabled) {
+      lines.push(
+        config.sources.jira.baseUrl && config.sources.jira.jql.length > 0
+          ? `Jira: configured ${config.sources.jira.baseUrl}`
+          : "Jira: enabled but missing baseUrl or JQL"
+      );
+    } else {
+      lines.push("Jira: disabled");
+    }
+
     lines.push(config.outputs.markdown.enabled ? "Markdown output: enabled" : "Markdown output: disabled");
     lines.push(config.outputs.dailyNote.enabled ? "Daily note output: enabled" : "Daily note output: disabled");
 
@@ -118,6 +129,9 @@ program
 
       if (!options.demo && shouldUseGitHub(config)) {
         items.push(...(await syncGitHub(buildGitHubSyncOptions(config))));
+      }
+      if (!options.demo && shouldUseJira(config)) {
+        items.push(...(await syncJira(buildJiraSyncOptions(config))));
       }
 
       if (items.length === 0 && !options.demo && !config) {
@@ -223,6 +237,36 @@ function buildGitHubSyncOptions(config: WorkCueConfig): Parameters<typeof syncGi
   };
   if (token) {
     options.token = token;
+  }
+  return options;
+}
+
+function shouldUseJira(config: WorkCueConfig | undefined): config is WorkCueConfig {
+  return Boolean(config?.sources.jira.enabled && config.sources.jira.baseUrl && config.sources.jira.jql.length > 0);
+}
+
+function buildJiraSyncOptions(config: WorkCueConfig): SyncJiraOptions {
+  const email = process.env[config.sources.jira.emailEnv];
+  const apiToken = process.env[config.sources.jira.tokenEnv];
+  const options: SyncJiraOptions = {
+    baseUrl: config.sources.jira.baseUrl ?? "",
+    jql: config.sources.jira.jql
+  };
+  const fieldMap: NonNullable<SyncJiraOptions["fieldMap"]> = {};
+  if (config.sources.jira.fieldMap.sprint) {
+    fieldMap.sprint = config.sources.jira.fieldMap.sprint;
+  }
+  if (config.sources.jira.fieldMap.storyPoints) {
+    fieldMap.storyPoints = config.sources.jira.fieldMap.storyPoints;
+  }
+  if (Object.keys(fieldMap).length > 0) {
+    options.fieldMap = fieldMap;
+  }
+  if (email) {
+    options.email = email;
+  }
+  if (apiToken) {
+    options.apiToken = apiToken;
   }
   return options;
 }

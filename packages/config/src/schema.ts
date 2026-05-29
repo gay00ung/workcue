@@ -24,6 +24,21 @@ export const WorkCueConfigSchema = z.object({
           user: z.string().optional()
         })
         .default({}),
+      jira: z
+        .object({
+          enabled: z.boolean().default(false),
+          baseUrl: z.string().optional(),
+          emailEnv: z.string().default("JIRA_EMAIL"),
+          tokenEnv: z.string().default("JIRA_API_TOKEN"),
+          jql: z.array(z.string()).default(["assignee = currentUser() AND statusCategory != Done"]),
+          fieldMap: z
+            .object({
+              sprint: z.string().optional(),
+              storyPoints: z.string().optional()
+            })
+            .default({})
+        })
+        .default({}),
       obsidian: z
         .object({
           enabled: z.boolean().default(false),

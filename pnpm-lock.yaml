@@ -29,6 +29,9 @@ importers:
       '@workcue/connector-github':
         specifier: workspace:*
         version: link:../../packages/connectors/github
+      '@workcue/connector-jira':
+        specifier: workspace:*
+        version: link:../../packages/connectors/jira
       '@workcue/connector-obsidian':
         specifier: workspace:*
         version: link:../../packages/connectors/obsidian
@@ -52,6 +55,12 @@ importers:
         version: 3.25.76
 
   packages/connectors/github:
+    dependencies:
+      '@workcue/core':
+        specifier: workspace:*
+        version: link:../../core
+
+  packages/connectors/jira:
     dependencies:
       '@workcue/core':
         specifier: workspace:*
