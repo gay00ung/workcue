@@ -1,0 +1,16 @@
+{
+  "name": "workcue",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "workcue": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@workcue/core": "workspace:*",
+    "commander": "^14.0.0"
+  }
+}
