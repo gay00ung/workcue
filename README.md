@@ -1,18 +1,18 @@
 # WorkCue
 
 <p align="center">
-  <a href="README.md"><img alt="Language English" src="https://img.shields.io/badge/lang-English-2563eb?style=for-the-badge"></a>
-  <a href="README.ko.md"><img alt="Language Korean" src="https://img.shields.io/badge/lang-%ED%95%9C%EA%B5%AD%EC%96%B4-16a34a?style=for-the-badge"></a>
+  <a href="README.md"><img alt="Language English" src="https://img.shields.io/badge/lang-English-2563eb?style=flat"></a>
+  <a href="README.ko.md"><img alt="Language Korean" src="https://img.shields.io/badge/lang-%ED%95%9C%EA%B5%AD%EC%96%B4-16a34a?style=flat"></a>
 </p>
 
 <p align="center">
-  <img alt="Local first" src="https://img.shields.io/badge/local--first-yes-0f766e?style=for-the-badge">
-  <img alt="MCP ready" src="https://img.shields.io/badge/MCP-ready-7c3aed?style=for-the-badge">
-  <img alt="No telemetry" src="https://img.shields.io/badge/telemetry-none-111827?style=for-the-badge">
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-3178c6?style=for-the-badge">
-  <img alt="pnpm" src="https://img.shields.io/badge/pnpm-10.x-f69220?style=for-the-badge">
-  <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ed?style=for-the-badge">
-  <img alt="License Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-64748b?style=for-the-badge">
+  <img alt="Local first" src="https://img.shields.io/badge/local--first-yes-0f766e?style=flat">
+  <img alt="MCP ready" src="https://img.shields.io/badge/MCP-ready-7c3aed?style=flat">
+  <img alt="No telemetry" src="https://img.shields.io/badge/telemetry-none-111827?style=flat">
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-3178c6?style=flat">
+  <img alt="pnpm" src="https://img.shields.io/badge/pnpm-10.x-f69220?style=flat">
+  <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ed?style=flat">
+  <img alt="License Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-64748b?style=flat">
 </p>
 
 <p align="center">
