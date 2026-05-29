@@ -12,6 +12,7 @@
   "dependencies": {
     "@workcue/connector-obsidian": "workspace:*",
     "@workcue/core": "workspace:*",
+    "@workcue/output-markdown": "workspace:*",
     "commander": "^14.0.0"
   }
 }
