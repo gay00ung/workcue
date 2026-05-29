@@ -11,6 +11,7 @@ describe("config", () => {
     expect(config.sources.obsidian.enabled).toBe(false);
     expect(config.sources.obsidian.vaultPath).toBe("/path/to/obsidian-vault");
     expect(config.sources.github.enabled).toBe(false);
+    expect(config.sources.jira.enabled).toBe(false);
   });
 
   it("writes and loads config files", async () => {

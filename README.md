@@ -69,6 +69,7 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - Deterministic demo scoring
 - Local Obsidian markdown task connector
 - GitHub Issues and PR connector package
+- Jira issue connector package
 - Markdown morning brief renderer
 - Markdown file output
 - Obsidian daily note upsert
@@ -134,6 +135,19 @@ sources:
     repos:
       - your-repo
     user: your-github-login
+```
+
+Jira config also stores environment variable names, not credential values:
+
+```yaml
+sources:
+  jira:
+    enabled: true
+    baseUrl: https://your-domain.atlassian.net
+    emailEnv: JIRA_EMAIL
+    tokenEnv: JIRA_API_TOKEN
+    jql:
+      - assignee = currentUser() AND statusCategory != Done
 ```
 
 The project harness lives in `.codex/harnesses/workcue-engineering/`. Local paths belong in `.codex/local.env`, which is ignored by Git. Use `.codex/local.example.env` as the template.

@@ -43,6 +43,14 @@ export function createInitialConfig(options: InitConfigOptions = {}): WorkCueCon
         repos: ["repo"],
         user: "you"
       },
+      jira: {
+        enabled: false,
+        baseUrl: "https://your-domain.atlassian.net",
+        emailEnv: "JIRA_EMAIL",
+        tokenEnv: "JIRA_API_TOKEN",
+        jql: ["assignee = currentUser() AND statusCategory != Done"],
+        fieldMap: {}
+      },
       obsidian: {
         enabled: Boolean(options.obsidianVault),
         vaultPath: options.obsidianVault ?? "/path/to/obsidian-vault",
