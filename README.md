@@ -180,6 +180,16 @@ cache:
     path: .workcue/workcue.sqlite
 ```
 
+You can tune deterministic scoring with signal multipliers:
+
+```yaml
+scoring:
+  signalWeights:
+    review_requested: 1.3
+    due_soon: 1.2
+    waiting_external: 0.7
+```
+
 ## MCP Server
 
 WorkCue ships a local MCP server so Codex, Claude Desktop, Cursor, and other MCP clients can ask for the same morning brief without WorkCue becoming a new todo database.
@@ -228,6 +238,7 @@ More docs:
 - [Local cache](docs/cache.md)
 - [Docker](docs/docker.md)
 - [MCP server](docs/mcp.md)
+- [Scoring](docs/scoring.md)
 - [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)
 - [GitHub PR review radar recipe](docs/recipes/github-pr-review-radar.md)
 

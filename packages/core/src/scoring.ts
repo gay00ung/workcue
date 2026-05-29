@@ -1,7 +1,8 @@
-import type { Recommendation, RecommendationMode, Signal, WorkItem } from "./schema.js";
+import type { Recommendation, RecommendationMode, Signal, SignalKind, WorkItem } from "./schema.js";
 
 export interface ScoreOptions {
   date: string;
+  signalWeights?: Partial<Record<SignalKind, number>>;
   userHandles?: string[];
   topFocusItems?: number;
 }
@@ -51,14 +52,18 @@ function scoreWorkItem(item: WorkItem, options: ScoreOptions): ScoreBreakdown {
     message: string,
     evidence?: Record<string, unknown>
   ) => {
+    const multiplier = options.signalWeights?.[kind] ?? 1;
+    const weightedValue = weight * multiplier;
     const signal: Signal = {
       id: `${item.id}:${kind}:${signals.length + 1}`,
       workItemId: item.id,
       kind,
-      weight,
+      weight: weightedValue,
       confidence: 0.9,
       message,
-      ...(evidence ? { evidence } : {})
+      ...(evidence || multiplier !== 1
+        ? { evidence: { ...(evidence ?? {}), ...(multiplier !== 1 ? { defaultWeight: weight, multiplier } : {}) } }
+        : {})
     };
     signals.push(signal);
   };

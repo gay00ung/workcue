@@ -8,6 +8,11 @@ export const WorkCueConfigSchema = z.object({
       topFocusItems: z.number().int().positive().default(3)
     })
     .default({}),
+  scoring: z
+    .object({
+      signalWeights: z.record(z.number().nonnegative()).default({})
+    })
+    .default({}),
   user: z
     .object({
       handles: z.array(z.string()).default(["you"])

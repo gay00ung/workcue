@@ -1,10 +1,11 @@
 import type { Brief, Recommendation, WorkItem } from "./schema.js";
-import { rankWorkItems } from "./scoring.js";
+import { rankWorkItems, type ScoreOptions } from "./scoring.js";
 
 export interface BriefOptions {
   date: string;
   timezone?: string;
   topFocusItems?: number;
+  signalWeights?: ScoreOptions["signalWeights"];
   userHandles?: string[];
 }
 
@@ -14,7 +15,14 @@ export function createBrief(items: WorkItem[], options: BriefOptions): Brief {
     date: options.date,
     topFocusItems
   };
-  const ranked = rankWorkItems(items, options.userHandles ? { ...scoreOptions, userHandles: options.userHandles } : scoreOptions);
+  const rankOptions: ScoreOptions = { ...scoreOptions };
+  if (options.signalWeights) {
+    rankOptions.signalWeights = options.signalWeights;
+  }
+  if (options.userHandles) {
+    rankOptions.userHandles = options.userHandles;
+  }
+  const ranked = rankWorkItems(items, rankOptions);
 
   const focus = ranked.filter((item) => item.score > 0 && !hasNegativeOnlyState(item)).slice(0, topFocusItems);
   const focusIds = new Set(focus.map((item) => item.id));
