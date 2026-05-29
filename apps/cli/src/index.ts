@@ -1,6 +1,15 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { syncObsidianVault } from "@workcue/connector-obsidian";
+import {
+  createInitialConfig,
+  defaultConfigPath,
+  expandDateTemplate,
+  loadConfig,
+  writeConfig,
+  type InitConfigOptions,
+  type WorkCueConfig
+} from "@workcue/config";
+import { syncObsidianVault, type SyncObsidianVaultOptions } from "@workcue/connector-obsidian";
 import { buildDemoWorkItems, createBrief, renderBriefMarkdown } from "@workcue/core";
 import { upsertDailyNoteSection, writeMarkdownFile } from "@workcue/output-markdown";
 
@@ -12,8 +21,57 @@ program
   .version("0.0.0");
 
 program
+  .command("init")
+  .description("Create a local WorkCue config file.")
+  .option("--output <path>", "Config path to write.", defaultConfigPath())
+  .option("--obsidian-vault <path>", "Local Obsidian vault path to enable.")
+  .option("--markdown-output <path>", "Markdown output path. Supports {{date}}.")
+  .option("--daily-note <path>", "Daily note output path. Supports {{date}}.")
+  .action(async (options: { output: string; obsidianVault?: string; markdownOutput?: string; dailyNote?: string }) => {
+    const initOptions: InitConfigOptions = {};
+    if (options.obsidianVault) {
+      initOptions.obsidianVault = options.obsidianVault;
+    }
+    if (options.markdownOutput) {
+      initOptions.markdownOutput = options.markdownOutput;
+    }
+    if (options.dailyNote) {
+      initOptions.dailyNote = options.dailyNote;
+    }
+    const config = createInitialConfig(initOptions);
+
+    await writeConfig(options.output, config);
+    process.stdout.write(`Wrote WorkCue config to ${options.output}\n`);
+  });
+
+program
+  .command("doctor")
+  .description("Check local WorkCue config and source readiness.")
+  .option("--config <path>", "Config path to read.", defaultConfigPath())
+  .action(async (options: { config: string }) => {
+    const config = await loadConfig(options.config);
+    const lines = ["WorkCue Doctor", "", `Config: OK ${options.config}`];
+
+    if (config.sources.obsidian.enabled) {
+      lines.push(
+        config.sources.obsidian.vaultPath
+          ? `Obsidian: configured ${config.sources.obsidian.vaultPath}`
+          : "Obsidian: enabled but missing vaultPath"
+      );
+    } else {
+      lines.push("Obsidian: disabled");
+    }
+
+    lines.push(config.outputs.markdown.enabled ? "Markdown output: enabled" : "Markdown output: disabled");
+    lines.push(config.outputs.dailyNote.enabled ? "Daily note output: enabled" : "Daily note output: disabled");
+
+    process.stdout.write(`${lines.join("\n")}\n`);
+  });
+
+program
   .command("today")
   .description("Generate today's WorkCue brief.")
+  .option("--config <path>", "Config path to read.")
   .option("--demo", "Use built-in demo data. No tokens or external services required.")
   .option("--obsidian-vault <path>", "Read unchecked markdown tasks from a local Obsidian vault.")
   .option("--output <path>", "Write the generated brief to a markdown file.")
@@ -23,6 +81,7 @@ program
   .option("--top <count>", "Number of focus items to show.", parseInteger, 3)
   .action(
     async (options: {
+      config?: string;
       demo?: boolean;
       obsidianVault?: string;
       output?: string;
@@ -31,13 +90,15 @@ program
       date: string;
       top: number;
     }) => {
+      const config = options.config ? await loadConfig(options.config) : undefined;
+      const obsidianVault = options.obsidianVault ?? config?.sources.obsidian.vaultPath;
+      const outputPath = options.output ?? expandDateTemplate(config?.outputs.markdown.path, options.date);
+      const dailyNotePath = options.dailyNote ?? expandDateTemplate(config?.outputs.dailyNote.path, options.date);
+      const userHandles = buildUserHandles(options.assignee, config);
       const items = options.demo
         ? buildDemoWorkItems(options.date)
-        : options.obsidianVault
-          ? await syncObsidianVault({
-              vaultPath: options.obsidianVault,
-              assignee: options.assignee
-            })
+        : shouldUseObsidian(options, config, obsidianVault)
+          ? await syncObsidianVault(buildObsidianSyncOptions(obsidianVault, config, userHandles))
           : undefined;
 
       if (!items) {
@@ -55,18 +116,18 @@ program
       const brief = createBrief(items, {
         date: options.date,
         topFocusItems: options.top,
-        userHandles: [options.assignee],
+        userHandles,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
       });
 
       const markdown = renderBriefMarkdown(brief);
 
-      if (options.output) {
-        await writeMarkdownFile({ outputPath: options.output, content: markdown });
+      if (outputPath && (options.output || config?.outputs.markdown.enabled)) {
+        await writeMarkdownFile({ outputPath, content: markdown });
       }
 
-      if (options.dailyNote) {
-        await upsertDailyNoteSection({ notePath: options.dailyNote, content: markdown });
+      if (dailyNotePath && (options.dailyNote || config?.outputs.dailyNote.enabled)) {
+        await upsertDailyNoteSection({ notePath: dailyNotePath, content: markdown });
       }
 
       process.stdout.write(markdown);
@@ -92,4 +153,35 @@ function parseInteger(value: string): number {
     throw new Error(`Expected a positive integer, received: ${value}`);
   }
   return parsed;
+}
+
+function shouldUseObsidian(
+  options: { obsidianVault?: string },
+  config: WorkCueConfig | undefined,
+  obsidianVault: string | undefined
+): obsidianVault is string {
+  return Boolean(options.obsidianVault || (config?.sources.obsidian.enabled && obsidianVault));
+}
+
+function buildUserHandles(cliAssignee: string, config: WorkCueConfig | undefined): string[] {
+  const handles = config?.user.handles.length ? config.user.handles : [cliAssignee];
+  return handles.includes(cliAssignee) ? handles : [cliAssignee, ...handles];
+}
+
+function buildObsidianSyncOptions(
+  vaultPath: string,
+  config: WorkCueConfig | undefined,
+  userHandles: string[]
+): SyncObsidianVaultOptions {
+  const options: SyncObsidianVaultOptions = { vaultPath };
+  if (config?.sources.obsidian.include) {
+    options.include = config.sources.obsidian.include;
+  }
+  if (config?.sources.obsidian.exclude) {
+    options.exclude = config.sources.obsidian.exclude;
+  }
+  if (userHandles[0]) {
+    options.assignee = userHandles[0];
+  }
+  return options;
 }
