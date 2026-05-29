@@ -51,4 +51,34 @@ describe("demo brief", () => {
       multiplier: 2
     });
   });
+
+  it("uses active project context for in-progress kanban items", () => {
+    const [recommendation] = rankWorkItems(
+      [
+        {
+          id: "notion:task-1",
+          source: "notion",
+          sourceId: "task-1",
+          title: "Finish auth cleanup",
+          status: "in_progress",
+          assignees: ["you"],
+          labels: [],
+          project: "Auth"
+        }
+      ],
+      {
+        date: "2026-05-29",
+        userHandles: ["you"]
+      }
+    );
+
+    expect(recommendation?.reasons).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "current_sprint",
+          message: "Auth 프로젝트에서 이미 진행 중인 작업입니다."
+        })
+      ])
+    );
+  });
 });

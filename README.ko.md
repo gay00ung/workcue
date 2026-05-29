@@ -45,6 +45,15 @@ pnpm today --demo --date 2026-05-29
 pnpm today --obsidian-vault /path/to/vault --date 2026-05-29
 ```
 
+Notion 칸반 데이터베이스나 data source를 읽으려면:
+
+```bash
+export NOTION_TOKEN="secret_..."
+pnpm today --notion-board "https://www.notion.so/workspace/Tasks-0123456789abcdef0123456789abcdef" --date 2026-05-29
+```
+
+WorkCue는 Notion row의 title, status, due date, priority, assignee, project, labels, estimate 같은 속성을 읽습니다. 이 preview에서는 page body 내용 전체를 읽지 않습니다.
+
 brief를 만들기 전에 정규화된 source item만 확인하려면:
 
 ```bash
@@ -108,6 +117,7 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - Obsidian markdown task connector
 - GitHub Issues/PR connector
 - Jira issue connector
+- Notion kanban database/data source connector preview
 - Markdown morning brief renderer
 - Markdown file output
 - Obsidian daily note upsert
@@ -115,6 +125,7 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - sync 결과용 로컬 SQLite cache
 - 로컬 container 실행용 Dockerfile
 - CLI commands: `workcue sync`, `workcue explain`, `workcue today --demo`
+- CLI source options: `--obsidian-vault <path>`, `--notion-board <url-or-id>`
 
 ## 제품 원칙
 
@@ -164,6 +175,20 @@ pnpm --filter workcue dev init \
   --daily-note /path/to/vault/Daily/{{date}}.md
 ```
 
+Notion 칸반 링크를 함께 설정할 수도 있습니다.
+
+```bash
+pnpm --filter workcue dev init \
+  --output .workcue/config.yml \
+  --notion-board "https://www.notion.so/workspace/Tasks-0123456789abcdef0123456789abcdef"
+```
+
+Notion token 값은 config에 저장하지 않고 환경변수에 둡니다.
+
+```bash
+export NOTION_TOKEN="secret_..."
+```
+
 config를 점검합니다.
 
 ```bash
@@ -200,6 +225,23 @@ sources:
     tokenEnv: JIRA_API_TOKEN
     jql:
       - assignee = currentUser() AND statusCategory != Done
+```
+
+Notion config는 board link나 ID와 token 환경변수 이름만 저장합니다.
+
+```yaml
+sources:
+  notion:
+    enabled: true
+    tokenEnv: NOTION_TOKEN
+    boards:
+      - url: https://www.notion.so/workspace/Tasks-0123456789abcdef0123456789abcdef
+        titleProperty: Name
+        statusProperty: Status
+        dueProperty: Due
+        priorityProperty: Priority
+        assigneeProperty: Owner
+        projectProperty: Project
 ```
 
 `workcue init`으로 생성되는 local config는 SQLite cache를 기본으로 켭니다.
@@ -285,6 +327,7 @@ tool arguments 예시입니다.
 - [Scoring](docs/scoring.md)
 - [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)
 - [GitHub PR review radar recipe](docs/recipes/github-pr-review-radar.md)
+- [Notion kanban recipe](docs/recipes/notion-kanban.md)
 - [Changelog](CHANGELOG.md)
 
 프로젝트 하네스는 `.codex/harnesses/workcue-engineering/`에 있습니다. 로컬 경로는 Git에 올라가지 않는 `.codex/local.env`에만 둡니다. 공개 template은 `.codex/local.example.env`를 사용합니다.

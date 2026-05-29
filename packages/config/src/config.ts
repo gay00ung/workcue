@@ -8,6 +8,7 @@ export interface InitConfigOptions {
   obsidianVault?: string;
   markdownOutput?: string;
   dailyNote?: string;
+  notionBoard?: string;
 }
 
 export function defaultConfigPath(): string {
@@ -53,6 +54,25 @@ export function createInitialConfig(options: InitConfigOptions = {}): WorkCueCon
         tokenEnv: "JIRA_API_TOKEN",
         jql: ["assignee = currentUser() AND statusCategory != Done"],
         fieldMap: {}
+      },
+      notion: {
+        enabled: Boolean(options.notionBoard),
+        tokenEnv: "NOTION_TOKEN",
+        boards: options.notionBoard
+          ? [
+              {
+                url: options.notionBoard,
+                titleProperty: "Name",
+                statusProperty: "Status",
+                dueProperty: "Due",
+                priorityProperty: "Priority",
+                assigneeProperty: "Owner",
+                projectProperty: "Project",
+                labelsProperty: "Tags",
+                estimateProperty: "Estimate"
+              }
+            ]
+          : []
       },
       obsidian: {
         enabled: Boolean(options.obsidianVault),

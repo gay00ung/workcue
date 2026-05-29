@@ -66,5 +66,6 @@ describe("runDoctorTool", () => {
     expect(doctor).toContain("Obsidian: disabled");
     expect(doctor).toContain("GitHub: disabled");
     expect(doctor).toContain("Jira: disabled");
+    expect(doctor).toContain("Notion: disabled");
   });
 });

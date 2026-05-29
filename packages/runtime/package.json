@@ -22,6 +22,7 @@
     "@workcue/config": "workspace:*",
     "@workcue/connector-github": "workspace:*",
     "@workcue/connector-jira": "workspace:*",
+    "@workcue/connector-notion": "workspace:*",
     "@workcue/connector-obsidian": "workspace:*",
     "@workcue/core": "workspace:*",
     "@workcue/llm": "workspace:*",

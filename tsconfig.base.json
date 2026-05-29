@@ -10,6 +10,7 @@
       "@workcue/config": ["packages/config/src/index.ts"],
       "@workcue/connector-github": ["packages/connectors/github/src/index.ts"],
       "@workcue/connector-jira": ["packages/connectors/jira/src/index.ts"],
+      "@workcue/connector-notion": ["packages/connectors/notion/src/index.ts"],
       "@workcue/connector-obsidian": ["packages/connectors/obsidian/src/index.ts"],
       "@workcue/core": ["packages/core/src/index.ts"],
       "@workcue/llm": ["packages/llm/src/index.ts"],

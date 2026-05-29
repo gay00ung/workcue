@@ -16,6 +16,8 @@ const SourceToolArgsSchema = z.object({
   configPath: z.string().optional().describe("Path to a WorkCue config file. Defaults to ~/.workcue/config.yml."),
   date: z.string().optional().describe("Brief date in YYYY-MM-DD format. Defaults to today."),
   demo: z.boolean().optional().describe("Use built-in demo data without reading external services."),
+  notionBoard: z.string().optional().describe("Notion kanban database or data source URL/ID to read cards from."),
+  notionTokenEnv: z.string().optional().describe("Environment variable name that stores the Notion integration token."),
   obsidianVault: z.string().optional().describe("Local Obsidian vault path to read unchecked markdown tasks from."),
   top: z.number().int().positive().optional().describe("Number of focus items to return.")
 });
@@ -175,6 +177,12 @@ export async function runDoctorTool(args: DoctorToolArgs): Promise<string> {
     lines.push(config.sources.jira.jql.length > 0 ? `Jira JQL queries: ${config.sources.jira.jql.length}` : "Jira JQL queries: missing");
   }
 
+  lines.push(config.sources.notion?.enabled ? "Notion: enabled" : "Notion: disabled");
+  if (config.sources.notion?.enabled) {
+    lines.push(config.sources.notion.boards.length > 0 ? `Notion boards: ${config.sources.notion.boards.length}` : "Notion boards: missing");
+    lines.push(`Notion token env: ${config.sources.notion.tokenEnv}`);
+  }
+
   lines.push(config.outputs.markdown.enabled ? "Markdown output: enabled" : "Markdown output: disabled");
   lines.push(config.outputs.dailyNote.enabled ? "Daily note output: enabled" : "Daily note output: disabled");
 
@@ -195,6 +203,8 @@ function buildRunOptions(
     assignee?: string | undefined;
     configPath?: string | undefined;
     demo?: boolean | undefined;
+    notionBoard?: string | undefined;
+    notionTokenEnv?: string | undefined;
     obsidianVault?: string | undefined;
     top?: number | undefined;
   },
@@ -209,6 +219,12 @@ function buildRunOptions(
   }
   if (args.obsidianVault) {
     runOptions.obsidianVault = args.obsidianVault;
+  }
+  if (args.notionBoard) {
+    runOptions.notionBoard = args.notionBoard;
+  }
+  if (args.notionTokenEnv) {
+    runOptions.notionTokenEnv = args.notionTokenEnv;
   }
   if (args.top) {
     runOptions.top = args.top;

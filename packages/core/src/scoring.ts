@@ -98,6 +98,17 @@ function scoreWorkItem(item: WorkItem, options: ScoreOptions): ScoreBreakdown {
     });
   }
 
+  if (item.status === "in_progress") {
+    addSignal(
+      "current_sprint",
+      65,
+      item.project
+        ? `${item.project} 프로젝트에서 이미 진행 중인 작업입니다.`
+        : "이미 진행 중인 작업입니다.",
+      { status: item.status, ...(item.project ? { project: item.project } : {}) }
+    );
+  }
+
   if (item.sprint) {
     addSignal("current_sprint", 60, "현재 스프린트에 포함된 작업입니다.", { sprint: item.sprint });
   }

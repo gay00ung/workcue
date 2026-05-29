@@ -1,6 +1,7 @@
 import { expandDateTemplate, loadConfig, type WorkCueConfig } from "@workcue/config";
 import { syncGitHub } from "@workcue/connector-github";
 import { syncJira, type SyncJiraOptions } from "@workcue/connector-jira";
+import { syncNotionKanban, type NotionBoardConfig } from "@workcue/connector-notion";
 import { syncObsidianVault, type SyncObsidianVaultOptions } from "@workcue/connector-obsidian";
 import {
   buildDemoWorkItems,
@@ -34,6 +35,8 @@ export interface RunWorkCueTodayOptions {
   configPath?: string;
   demo?: boolean;
   env?: NodeJS.ProcessEnv;
+  notionBoard?: string;
+  notionTokenEnv?: string;
   obsidianVault?: string;
   timezone?: string;
   top?: number;
@@ -101,6 +104,7 @@ export async function runWorkCueToday(options: RunWorkCueTodayOptions): Promise<
 export async function syncWorkCueSources(options: SyncWorkCueSourcesOptions): Promise<WorkCueSyncResult> {
   const config = options.config ?? (options.configPath ? await loadConfig(options.configPath) : undefined);
   const obsidianVault = options.obsidianVault ?? config?.sources.obsidian.vaultPath;
+  const notionBoards = buildRuntimeNotionBoards(options, config);
   const userHandles = buildUserHandles(options.assignee ?? "you", config);
   const items: WorkItem[] = [];
 
@@ -118,6 +122,10 @@ export async function syncWorkCueSources(options: SyncWorkCueSourcesOptions): Pr
 
   if (!options.demo && shouldUseJira(config)) {
     items.push(...(await syncJira(buildJiraSyncOptions(config, options.env ?? process.env))));
+  }
+
+  if (!options.demo && notionBoards.length > 0) {
+    items.push(...(await syncNotionKanban(buildNotionSyncOptions(options, config, notionBoards, options.env ?? process.env))));
   }
 
   if (items.length === 0 && !options.demo && !config) {
@@ -337,6 +345,74 @@ function buildJiraSyncOptions(config: WorkCueConfig, env: NodeJS.ProcessEnv): Sy
     options.apiToken = apiToken;
   }
   return options;
+}
+
+function buildRuntimeNotionBoards(
+  options: Pick<RunWorkCueTodayOptions, "notionBoard">,
+  config: WorkCueConfig | undefined
+): NotionBoardConfig[] {
+  if (options.notionBoard) {
+    return [{ url: options.notionBoard }];
+  }
+  return config?.sources.notion.enabled ? config.sources.notion.boards.map(normalizeNotionBoardConfig) : [];
+}
+
+function buildNotionSyncOptions(
+  options: Pick<RunWorkCueTodayOptions, "notionTokenEnv">,
+  config: WorkCueConfig | undefined,
+  boards: NotionBoardConfig[],
+  env: NodeJS.ProcessEnv
+): Parameters<typeof syncNotionKanban>[0] {
+  const tokenEnv = options.notionTokenEnv ?? config?.sources.notion.tokenEnv ?? "NOTION_TOKEN";
+  const token = env[tokenEnv];
+  return {
+    token: token ?? "",
+    boards
+  };
+}
+
+function normalizeNotionBoardConfig(board: WorkCueConfig["sources"]["notion"]["boards"][number]): NotionBoardConfig {
+  const normalized: NotionBoardConfig = {};
+  if (board.id) {
+    normalized.id = board.id;
+  }
+  if (board.url) {
+    normalized.url = board.url;
+  }
+  if (board.databaseId) {
+    normalized.databaseId = board.databaseId;
+  }
+  if (board.dataSourceId) {
+    normalized.dataSourceId = board.dataSourceId;
+  }
+  if (board.name) {
+    normalized.name = board.name;
+  }
+  if (board.titleProperty) {
+    normalized.titleProperty = board.titleProperty;
+  }
+  if (board.statusProperty) {
+    normalized.statusProperty = board.statusProperty;
+  }
+  if (board.dueProperty) {
+    normalized.dueProperty = board.dueProperty;
+  }
+  if (board.priorityProperty) {
+    normalized.priorityProperty = board.priorityProperty;
+  }
+  if (board.assigneeProperty) {
+    normalized.assigneeProperty = board.assigneeProperty;
+  }
+  if (board.projectProperty) {
+    normalized.projectProperty = board.projectProperty;
+  }
+  if (board.labelsProperty) {
+    normalized.labelsProperty = board.labelsProperty;
+  }
+  if (board.estimateProperty) {
+    normalized.estimateProperty = board.estimateProperty;
+  }
+  return normalized;
 }
 
 function countSources(items: WorkItem[]): WorkCueSourceCounts {

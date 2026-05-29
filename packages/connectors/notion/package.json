@@ -1,0 +1,24 @@
+{
+  "name": "@workcue/connector-notion",
+  "version": "0.1.0-alpha.1",
+  "description": "Notion kanban database connector for WorkCue.",
+  "type": "module",
+  "private": false,
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@workcue/core": "workspace:*"
+  }
+}
