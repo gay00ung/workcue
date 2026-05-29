@@ -92,4 +92,34 @@ pnpm test
 pnpm --filter workcue start today --demo
 ```
 
+## Local Config
+
+Create a local config file:
+
+```bash
+pnpm --filter workcue start init --output .workcue/config.yml
+```
+
+Use local Obsidian and output paths:
+
+```bash
+pnpm --filter workcue start init \
+  --output .workcue/config.yml \
+  --obsidian-vault /path/to/vault \
+  --markdown-output ./briefs/{{date}}.md \
+  --daily-note /path/to/vault/Daily/{{date}}.md
+```
+
+Check the config:
+
+```bash
+pnpm --filter workcue start doctor --config .workcue/config.yml
+```
+
+Run from config:
+
+```bash
+pnpm today --config .workcue/config.yml --date 2026-05-29
+```
+
 The project harness lives in `.codex/harnesses/workcue-engineering/`. Local paths belong in `.codex/local.env`, which is ignored by Git. Use `.codex/local.example.env` as the template.

@@ -10,6 +10,7 @@
     "start": "tsx src/index.ts"
   },
   "dependencies": {
+    "@workcue/config": "workspace:*",
     "@workcue/connector-obsidian": "workspace:*",
     "@workcue/core": "workspace:*",
     "@workcue/output-markdown": "workspace:*",
