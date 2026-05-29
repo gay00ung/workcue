@@ -138,10 +138,14 @@ export async function syncWorkCueSources(options: SyncWorkCueSourcesOptions): Pr
 
 export async function explainWorkCueItem(options: ExplainWorkCueItemOptions): Promise<Recommendation> {
   const syncResult = await syncWorkCueSources(options);
-  const scoreOptions = {
+  const scoreOptions: Parameters<typeof rankWorkItems>[1] = {
     date: options.date,
     userHandles: syncResult.userHandles
   };
+  const explanationWeights = syncResult.config?.scoring.signalWeights;
+  if (explanationWeights && Object.keys(explanationWeights).length > 0) {
+    scoreOptions.signalWeights = explanationWeights as NonNullable<Parameters<typeof rankWorkItems>[1]["signalWeights"]>;
+  }
   const recommendations = rankWorkItems(syncResult.items, scoreOptions);
   const recommendation = recommendations.find(
     (candidate) =>
@@ -212,6 +216,10 @@ function buildBriefOptions(
     timezone: options.timezone ?? config?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
     userHandles
   };
+  const signalWeights = config?.scoring.signalWeights;
+  if (signalWeights && Object.keys(signalWeights).length > 0) {
+    briefOptions.signalWeights = signalWeights as NonNullable<Parameters<typeof createBrief>[1]["signalWeights"]>;
+  }
   const topFocusItems = options.top ?? config?.brief.topFocusItems;
   if (topFocusItems) {
     briefOptions.topFocusItems = topFocusItems;

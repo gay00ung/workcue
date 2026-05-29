@@ -32,6 +32,9 @@ export function createInitialConfig(options: InitConfigOptions = {}): WorkCueCon
     brief: {
       topFocusItems: 3
     },
+    scoring: {
+      signalWeights: {}
+    },
     user: {
       handles: ["you"]
     },

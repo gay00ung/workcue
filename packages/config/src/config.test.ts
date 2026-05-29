@@ -14,6 +14,7 @@ describe("config", () => {
     expect(config.sources.jira.enabled).toBe(false);
     expect(config.cache.sqlite.enabled).toBe(true);
     expect(config.cache.sqlite.path).toBe(".workcue/workcue.sqlite");
+    expect(config.scoring.signalWeights).toEqual({});
   });
 
   it("writes and loads config files", async () => {
