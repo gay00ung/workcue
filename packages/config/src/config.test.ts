@@ -12,6 +12,8 @@ describe("config", () => {
     expect(config.sources.obsidian.vaultPath).toBe("/path/to/obsidian-vault");
     expect(config.sources.github.enabled).toBe(false);
     expect(config.sources.jira.enabled).toBe(false);
+    expect(config.cache.sqlite.enabled).toBe(true);
+    expect(config.cache.sqlite.path).toBe(".workcue/workcue.sqlite");
   });
 
   it("writes and loads config files", async () => {

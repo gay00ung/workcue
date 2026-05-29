@@ -23,6 +23,9 @@ importers:
 
   apps/cli:
     dependencies:
+      '@workcue/cache-sqlite':
+        specifier: workspace:*
+        version: link:../../packages/cache/sqlite
       '@workcue/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -51,6 +54,12 @@ importers:
       tsx:
         specifier: ^4.20.0
         version: 4.22.3
+
+  packages/cache/sqlite:
+    dependencies:
+      '@workcue/core':
+        specifier: workspace:*
+        version: link:../../core
 
   packages/config:
     dependencies:

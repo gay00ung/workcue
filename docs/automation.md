@@ -84,7 +84,7 @@ The automation should report source failures with the failing source name and sh
 Run source sync without a brief:
 
 ```bash
-pnpm --filter workcue start sync --config .workcue/config.yml --json
+pnpm --filter workcue start sync --config .workcue/config.yml --json --cache .workcue/workcue.sqlite
 ```
 
 Explain one item:
