@@ -1,17 +1,21 @@
 {
-  "name": "workcue",
+  "name": "@workcue/mcp-server",
   "version": "0.0.0",
   "type": "module",
   "private": true,
   "bin": {
-    "workcue": "./src/index.ts"
+    "workcue-mcp": "./src/index.ts"
   },
   "scripts": {
     "start": "tsx src/index.ts"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@workcue/config": "workspace:*",
     "@workcue/runtime": "workspace:*",
-    "commander": "^14.0.0"
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
   }
 }

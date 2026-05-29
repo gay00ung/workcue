@@ -7,6 +7,7 @@
   "scripts": {
     "start": "pnpm --filter workcue start",
     "demo": "tsx apps/cli/src/index.ts today --demo",
+    "mcp": "tsx apps/mcp-server/src/index.ts",
     "today": "tsx apps/cli/src/index.ts today",
     "typecheck": "tsc -b",
     "test": "vitest run",
