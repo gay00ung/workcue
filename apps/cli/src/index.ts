@@ -9,8 +9,9 @@ import {
   type InitConfigOptions,
   type WorkCueConfig
 } from "@workcue/config";
+import { syncGitHub } from "@workcue/connector-github";
 import { syncObsidianVault, type SyncObsidianVaultOptions } from "@workcue/connector-obsidian";
-import { buildDemoWorkItems, createBrief, renderBriefMarkdown } from "@workcue/core";
+import { buildDemoWorkItems, createBrief, renderBriefMarkdown, type WorkItem } from "@workcue/core";
 import { upsertDailyNoteSection, writeMarkdownFile } from "@workcue/output-markdown";
 
 const program = new Command();
@@ -62,6 +63,16 @@ program
       lines.push("Obsidian: disabled");
     }
 
+    if (config.sources.github.enabled) {
+      lines.push(
+        config.sources.github.owner && config.sources.github.repos.length > 0 && config.sources.github.user
+          ? `GitHub: configured ${config.sources.github.owner}/${config.sources.github.repos.join(",")}`
+          : "GitHub: enabled but missing owner, repos, or user"
+      );
+    } else {
+      lines.push("GitHub: disabled");
+    }
+
     lines.push(config.outputs.markdown.enabled ? "Markdown output: enabled" : "Markdown output: disabled");
     lines.push(config.outputs.dailyNote.enabled ? "Daily note output: enabled" : "Daily note output: disabled");
 
@@ -95,13 +106,21 @@ program
       const outputPath = options.output ?? expandDateTemplate(config?.outputs.markdown.path, options.date);
       const dailyNotePath = options.dailyNote ?? expandDateTemplate(config?.outputs.dailyNote.path, options.date);
       const userHandles = buildUserHandles(options.assignee, config);
-      const items = options.demo
-        ? buildDemoWorkItems(options.date)
-        : shouldUseObsidian(options, config, obsidianVault)
-          ? await syncObsidianVault(buildObsidianSyncOptions(obsidianVault, config, userHandles))
-          : undefined;
+      const items: WorkItem[] = [];
 
-      if (!items) {
+      if (options.demo) {
+        items.push(...buildDemoWorkItems(options.date));
+      }
+
+      if (!options.demo && shouldUseObsidian(options, config, obsidianVault)) {
+        items.push(...(await syncObsidianVault(buildObsidianSyncOptions(obsidianVault, config, userHandles))));
+      }
+
+      if (!options.demo && shouldUseGitHub(config)) {
+        items.push(...(await syncGitHub(buildGitHubSyncOptions(config))));
+      }
+
+      if (items.length === 0 && !options.demo && !config) {
         console.error("No sources are configured yet. Run with --demo or --obsidian-vault <path>.");
         process.exitCode = 1;
         return;
@@ -182,6 +201,28 @@ function buildObsidianSyncOptions(
   }
   if (userHandles[0]) {
     options.assignee = userHandles[0];
+  }
+  return options;
+}
+
+function shouldUseGitHub(config: WorkCueConfig | undefined): config is WorkCueConfig {
+  return Boolean(
+    config?.sources.github.enabled &&
+      config.sources.github.owner &&
+      config.sources.github.repos.length > 0 &&
+      config.sources.github.user
+  );
+}
+
+function buildGitHubSyncOptions(config: WorkCueConfig): Parameters<typeof syncGitHub>[0] {
+  const token = process.env[config.sources.github.tokenEnv];
+  const options: Parameters<typeof syncGitHub>[0] = {
+    owner: config.sources.github.owner ?? "",
+    repos: config.sources.github.repos,
+    user: config.sources.github.user ?? "you"
+  };
+  if (token) {
+    options.token = token;
   }
   return options;
 }

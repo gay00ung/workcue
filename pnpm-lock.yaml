@@ -26,6 +26,9 @@ importers:
       '@workcue/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@workcue/connector-github':
+        specifier: workspace:*
+        version: link:../../packages/connectors/github
       '@workcue/connector-obsidian':
         specifier: workspace:*
         version: link:../../packages/connectors/obsidian
@@ -47,6 +50,12 @@ importers:
       zod:
         specifier: ^3.25.0
         version: 3.25.76
+
+  packages/connectors/github:
+    dependencies:
+      '@workcue/core':
+        specifier: workspace:*
+        version: link:../../core
 
   packages/connectors/obsidian:
     dependencies:
