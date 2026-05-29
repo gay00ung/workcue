@@ -19,14 +19,14 @@ export async function syncObsidianVault(options: SyncObsidianVaultOptions): Prom
 
   for (const filePath of selectedFiles) {
     const [content, stats] = await Promise.all([fs.readFile(filePath, "utf8"), fs.stat(filePath)]);
+    const parseOptions = {
+      vaultPath,
+      filePath,
+      content,
+      updatedAt: stats.mtime
+    };
     workItems.push(
-      ...parseObsidianTasks({
-        vaultPath,
-        filePath,
-        content,
-        updatedAt: stats.mtime,
-        assignee: options.assignee
-      })
+      ...parseObsidianTasks(options.assignee ? { ...parseOptions, assignee: options.assignee } : parseOptions)
     );
   }
 
