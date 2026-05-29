@@ -225,6 +225,7 @@ Use `configPath` to point the MCP server at a local `.workcue/config.yml`. Crede
 More docs:
 
 - [Automation](docs/automation.md)
+- [Local cache](docs/cache.md)
 - [Docker](docs/docker.md)
 - [MCP server](docs/mcp.md)
 - [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)
