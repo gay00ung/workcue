@@ -25,6 +25,18 @@ To read local Obsidian tasks:
 pnpm today --obsidian-vault /path/to/vault --date 2026-05-29
 ```
 
+To inspect normalized source items without generating a brief:
+
+```bash
+pnpm --filter workcue start sync --demo --date 2026-05-29
+```
+
+To explain one ranked work item:
+
+```bash
+pnpm --filter workcue start explain github:pr-184 --demo --date 2026-05-29
+```
+
 The Obsidian connector reads unchecked markdown tasks such as:
 
 ```markdown
@@ -73,8 +85,8 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - Markdown morning brief renderer
 - Markdown file output
 - Obsidian daily note upsert
-- MCP stdio server with `workcue_today` and `workcue_doctor`
-- CLI command: `workcue today --demo`
+- MCP stdio server with `workcue_sync`, `workcue_today`, `workcue_explain`, and `workcue_doctor`
+- CLI commands: `workcue sync`, `workcue explain`, `workcue today --demo`
 - CLI source option: `--obsidian-vault <path>`
 
 ## Product Principles
@@ -157,7 +169,9 @@ WorkCue ships a local MCP server so Codex, Claude Desktop, Cursor, and other MCP
 
 Available tools:
 
+- `workcue_sync`: reads configured sources and returns normalized work items without raw connector payloads.
 - `workcue_today`: generates a brief from demo data, an Obsidian vault, or configured sources.
+- `workcue_explain`: explains the deterministic score and recommendation reasons for one work item.
 - `workcue_doctor`: checks config readiness without fetching external work items.
 
 Run the stdio server locally:

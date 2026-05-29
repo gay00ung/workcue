@@ -2,10 +2,18 @@ import { expandDateTemplate, loadConfig, type WorkCueConfig } from "@workcue/con
 import { syncGitHub } from "@workcue/connector-github";
 import { syncJira, type SyncJiraOptions } from "@workcue/connector-jira";
 import { syncObsidianVault, type SyncObsidianVaultOptions } from "@workcue/connector-obsidian";
-import { buildDemoWorkItems, createBrief, renderBriefMarkdown, type Brief, type WorkItem } from "@workcue/core";
+import {
+  buildDemoWorkItems,
+  createBrief,
+  rankWorkItems,
+  renderBriefMarkdown,
+  type Brief,
+  type Recommendation,
+  type WorkItem
+} from "@workcue/core";
 import { upsertDailyNoteSection, writeMarkdownFile } from "@workcue/output-markdown";
 
-export type WorkCueRuntimeErrorCode = "NO_SOURCES_CONFIGURED" | "NO_ITEMS_FOUND";
+export type WorkCueRuntimeErrorCode = "ITEM_NOT_FOUND" | "NO_ITEMS_FOUND" | "NO_SOURCES_CONFIGURED";
 export type WorkCueSourceCounts = Record<string, number>;
 
 export class WorkCueRuntimeError extends Error {
@@ -28,6 +36,19 @@ export interface RunWorkCueTodayOptions {
   obsidianVault?: string;
   timezone?: string;
   top?: number;
+}
+
+export type SyncWorkCueSourcesOptions = Omit<RunWorkCueTodayOptions, "timezone" | "top">;
+export type ExplainWorkCueItemOptions = RunWorkCueTodayOptions & {
+  itemId: string;
+};
+
+export interface WorkCueSyncResult {
+  config?: WorkCueConfig;
+  items: WorkItem[];
+  sourceCounts: WorkCueSourceCounts;
+  syncedAt: string;
+  userHandles: string[];
 }
 
 export interface WorkCueTodayResult {
@@ -53,6 +74,24 @@ export interface WorkCueWrittenOutputs {
 }
 
 export async function runWorkCueToday(options: RunWorkCueTodayOptions): Promise<WorkCueTodayResult> {
+  const syncResult = await syncWorkCueSources(options);
+  const briefOptions = buildBriefOptions(options, syncResult.config, syncResult.userHandles);
+  const brief = createBrief(syncResult.items, briefOptions);
+
+  const result: WorkCueTodayResult = {
+    brief,
+    items: syncResult.items,
+    markdown: renderBriefMarkdown(brief),
+    sourceCounts: syncResult.sourceCounts,
+    userHandles: syncResult.userHandles
+  };
+  if (syncResult.config) {
+    result.config = syncResult.config;
+  }
+  return result;
+}
+
+export async function syncWorkCueSources(options: SyncWorkCueSourcesOptions): Promise<WorkCueSyncResult> {
   const config = options.config ?? (options.configPath ? await loadConfig(options.configPath) : undefined);
   const obsidianVault = options.obsidianVault ?? config?.sources.obsidian.vaultPath;
   const userHandles = buildUserHandles(options.assignee ?? "you", config);
@@ -85,29 +124,63 @@ export async function runWorkCueToday(options: RunWorkCueTodayOptions): Promise<
     throw new WorkCueRuntimeError("NO_ITEMS_FOUND", "No open work items found.");
   }
 
-  const briefOptions: Parameters<typeof createBrief>[1] = {
-    date: options.date,
-    timezone: options.timezone ?? config?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
-    userHandles
-  };
-  const topFocusItems = options.top ?? config?.brief.topFocusItems;
-  if (topFocusItems) {
-    briefOptions.topFocusItems = topFocusItems;
-  }
-
-  const brief = createBrief(items, briefOptions);
-
-  const result: WorkCueTodayResult = {
-    brief,
+  const result: WorkCueSyncResult = {
     items,
-    markdown: renderBriefMarkdown(brief),
     sourceCounts: countSources(items),
+    syncedAt: new Date().toISOString(),
     userHandles
   };
   if (config) {
     result.config = config;
   }
   return result;
+}
+
+export async function explainWorkCueItem(options: ExplainWorkCueItemOptions): Promise<Recommendation> {
+  const syncResult = await syncWorkCueSources(options);
+  const scoreOptions = {
+    date: options.date,
+    userHandles: syncResult.userHandles
+  };
+  const recommendations = rankWorkItems(syncResult.items, scoreOptions);
+  const recommendation = recommendations.find(
+    (candidate) =>
+      candidate.workItem.id === options.itemId ||
+      candidate.workItem.sourceId === options.itemId ||
+      candidate.workItem.title === options.itemId
+  );
+
+  if (!recommendation) {
+    throw new WorkCueRuntimeError("ITEM_NOT_FOUND", `Work item not found: ${options.itemId}`);
+  }
+
+  return recommendation;
+}
+
+export function renderRecommendationExplanation(recommendation: Recommendation): string {
+  const source = recommendation.workItem.sourceUrl
+    ? `${recommendation.workItem.source}: ${recommendation.workItem.sourceUrl}`
+    : `${recommendation.workItem.source}: ${recommendation.workItem.sourceId}`;
+  const lines = [
+    `# WorkCue Explain - ${recommendation.workItem.title}`,
+    "",
+    `- Item ID: ${recommendation.workItem.id}`,
+    `- Rank: ${recommendation.rank}`,
+    `- Score: ${recommendation.score}`,
+    `- Confidence: ${recommendation.confidence}`,
+    `- Status: ${recommendation.workItem.status}`,
+    `- Source: ${source}`,
+    "",
+    "## Why now",
+    "",
+    ...recommendation.reasons.map((reason) => `- ${reason.message} (${reason.weight > 0 ? "+" : ""}${reason.weight})`),
+    "",
+    "## Suggested action",
+    "",
+    recommendation.suggestedAction
+  ];
+
+  return `${lines.join("\n").trim()}\n`;
 }
 
 export async function writeWorkCueOutputs(options: WriteWorkCueOutputsOptions): Promise<WorkCueWrittenOutputs> {
@@ -127,6 +200,23 @@ export async function writeWorkCueOutputs(options: WriteWorkCueOutputsOptions): 
   }
 
   return written;
+}
+
+function buildBriefOptions(
+  options: RunWorkCueTodayOptions,
+  config: WorkCueConfig | undefined,
+  userHandles: string[]
+): Parameters<typeof createBrief>[1] {
+  const briefOptions: Parameters<typeof createBrief>[1] = {
+    date: options.date,
+    timezone: options.timezone ?? config?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+    userHandles
+  };
+  const topFocusItems = options.top ?? config?.brief.topFocusItems;
+  if (topFocusItems) {
+    briefOptions.topFocusItems = topFocusItems;
+  }
+  return briefOptions;
 }
 
 function shouldUseObsidian(

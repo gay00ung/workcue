@@ -1,19 +1,35 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { defaultConfigPath, loadConfig } from "@workcue/config";
-import { runWorkCueToday, writeWorkCueOutputs, type RunWorkCueTodayOptions } from "@workcue/runtime";
+import {
+  explainWorkCueItem,
+  renderRecommendationExplanation,
+  runWorkCueToday,
+  syncWorkCueSources,
+  writeWorkCueOutputs,
+  type RunWorkCueTodayOptions
+} from "@workcue/runtime";
 import { z } from "zod";
 
-export const TodayToolArgsSchema = z.object({
+const SourceToolArgsSchema = z.object({
   assignee: z.string().optional().describe("Local assignee handle for markdown tasks. Defaults to you."),
   configPath: z.string().optional().describe("Path to a WorkCue config file. Defaults to ~/.workcue/config.yml."),
   date: z.string().optional().describe("Brief date in YYYY-MM-DD format. Defaults to today."),
   demo: z.boolean().optional().describe("Use built-in demo data without reading external services."),
   obsidianVault: z.string().optional().describe("Local Obsidian vault path to read unchecked markdown tasks from."),
-  top: z.number().int().positive().optional().describe("Number of focus items to return."),
+  top: z.number().int().positive().optional().describe("Number of focus items to return.")
+});
+
+export const TodayToolArgsSchema = SourceToolArgsSchema.extend({
   writeOutputs: z
     .boolean()
     .optional()
     .describe("Write configured markdown or daily-note outputs after generating the brief. Defaults to false.")
+});
+
+export const SyncToolArgsSchema = SourceToolArgsSchema.omit({ top: true });
+
+export const ExplainToolArgsSchema = SourceToolArgsSchema.extend({
+  itemId: z.string().describe("WorkCue item id, source id, or exact title to explain.")
 });
 
 export const DoctorToolArgsSchema = z.object({
@@ -21,6 +37,8 @@ export const DoctorToolArgsSchema = z.object({
 });
 
 export type TodayToolArgs = z.infer<typeof TodayToolArgsSchema>;
+export type SyncToolArgs = z.infer<typeof SyncToolArgsSchema>;
+export type ExplainToolArgs = z.infer<typeof ExplainToolArgsSchema>;
 export type DoctorToolArgs = z.infer<typeof DoctorToolArgsSchema>;
 
 export function createWorkCueMcpServer(): McpServer {
@@ -28,6 +46,20 @@ export function createWorkCueMcpServer(): McpServer {
     name: "workcue-mcp",
     version: "0.0.0"
   });
+
+  server.tool(
+    "workcue_sync",
+    "Read WorkCue sources and return normalized work items without generating or writing a brief.",
+    SyncToolArgsSchema.shape,
+    async (args) => ({
+      content: [
+        {
+          type: "text",
+          text: await runSyncTool(args)
+        }
+      ]
+    })
+  );
 
   server.tool(
     "workcue_today",
@@ -38,6 +70,20 @@ export function createWorkCueMcpServer(): McpServer {
         {
           type: "text",
           text: await runTodayTool(args)
+        }
+      ]
+    })
+  );
+
+  server.tool(
+    "workcue_explain",
+    "Explain the deterministic score and recommendation reasons for a synced work item.",
+    ExplainToolArgsSchema.shape,
+    async (args) => ({
+      content: [
+        {
+          type: "text",
+          text: await runExplainTool(args)
         }
       ]
     })
@@ -62,25 +108,7 @@ export function createWorkCueMcpServer(): McpServer {
 
 export async function runTodayTool(args: TodayToolArgs): Promise<string> {
   const date = args.date ?? todayDate();
-  const runOptions: RunWorkCueTodayOptions = { date };
-
-  if (args.assignee) {
-    runOptions.assignee = args.assignee;
-  }
-  if (args.demo) {
-    runOptions.demo = true;
-  }
-  if (args.obsidianVault) {
-    runOptions.obsidianVault = args.obsidianVault;
-  }
-  if (args.top) {
-    runOptions.top = args.top;
-  }
-  if (!args.demo || args.configPath) {
-    runOptions.configPath = args.configPath ?? defaultConfigPath();
-  }
-
-  const result = await runWorkCueToday(runOptions);
+  const result = await runWorkCueToday(buildRunOptions(args, date));
   let outputsWritten = "no";
 
   if (args.writeOutputs) {
@@ -103,6 +131,22 @@ export async function runTodayTool(args: TodayToolArgs): Promise<string> {
     `- Source counts: ${formatSourceCounts(result.sourceCounts)}`,
     `- Outputs written: ${outputsWritten}`
   ].join("\n");
+}
+
+export async function runSyncTool(args: SyncToolArgs): Promise<string> {
+  const date = args.date ?? todayDate();
+  const result = await syncWorkCueSources(buildRunOptions(args, date));
+  return `${JSON.stringify(buildSyncPayload(result), null, 2)}\n`;
+}
+
+export async function runExplainTool(args: ExplainToolArgs): Promise<string> {
+  const date = args.date ?? todayDate();
+  const recommendation = await explainWorkCueItem({
+    ...buildRunOptions(args, date),
+    itemId: args.itemId
+  });
+
+  return renderRecommendationExplanation(recommendation);
 }
 
 export async function runDoctorTool(args: DoctorToolArgs): Promise<string> {
@@ -138,6 +182,83 @@ export async function runDoctorTool(args: DoctorToolArgs): Promise<string> {
 
 function todayDate(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function buildRunOptions(
+  args: {
+    assignee?: string | undefined;
+    configPath?: string | undefined;
+    demo?: boolean | undefined;
+    obsidianVault?: string | undefined;
+    top?: number | undefined;
+  },
+  date: string
+): RunWorkCueTodayOptions {
+  const runOptions: RunWorkCueTodayOptions = { date };
+  if (args.assignee) {
+    runOptions.assignee = args.assignee;
+  }
+  if (args.demo) {
+    runOptions.demo = true;
+  }
+  if (args.obsidianVault) {
+    runOptions.obsidianVault = args.obsidianVault;
+  }
+  if (args.top) {
+    runOptions.top = args.top;
+  }
+  if (!args.demo || args.configPath) {
+    runOptions.configPath = args.configPath ?? defaultConfigPath();
+  }
+  return runOptions;
+}
+
+function buildSyncPayload(result: Awaited<ReturnType<typeof syncWorkCueSources>>): Record<string, unknown> {
+  return {
+    syncedAt: result.syncedAt,
+    itemCount: result.items.length,
+    sourceCounts: result.sourceCounts,
+    items: result.items.map(serializeWorkItem)
+  };
+}
+
+function serializeWorkItem(item: Awaited<ReturnType<typeof syncWorkCueSources>>["items"][number]): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    id: item.id,
+    source: item.source,
+    sourceId: item.sourceId,
+    title: item.title,
+    status: item.status,
+    assignees: item.assignees,
+    labels: item.labels
+  };
+
+  if (item.sourceUrl) {
+    payload.sourceUrl = item.sourceUrl;
+  }
+  if (item.requestedReviewers) {
+    payload.requestedReviewers = item.requestedReviewers;
+  }
+  if (item.dueAt) {
+    payload.dueAt = item.dueAt;
+  }
+  if (item.priority) {
+    payload.priority = item.priority;
+  }
+  if (item.project) {
+    payload.project = item.project;
+  }
+  if (item.milestone) {
+    payload.milestone = item.milestone;
+  }
+  if (item.sprint) {
+    payload.sprint = item.sprint;
+  }
+  if (item.estimateMinutes) {
+    payload.estimateMinutes = item.estimateMinutes;
+  }
+
+  return payload;
 }
 
 function formatSourceCounts(sourceCounts: Record<string, number>): string {
