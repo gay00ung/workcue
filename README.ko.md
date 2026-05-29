@@ -21,18 +21,18 @@
 
 업무 도구는 그대로, 오늘 할 일만 자동으로.
 
-WorkCue는 Jira, GitHub, Obsidian 같은 기존 업무 도구에 흩어진 일을 읽고 오늘 집중해야 할 작업을 근거와 함께 추천하는 로컬 우선 morning planner다. 새로운 todo 앱이나 칸반 보드를 만들지 않는다. 이미 쓰는 업무 시스템을 source of truth로 유지하고, 그 위에 아침 브리핑 레이어를 얹는다.
+WorkCue는 Jira, GitHub, Obsidian 같은 기존 업무 도구에 흩어진 일을 읽고, 오늘 집중해야 할 작업을 근거와 함께 추천하는 로컬 우선 morning planner입니다. 새로운 todo 앱이나 칸반 보드를 만들지 않습니다. 이미 쓰는 업무 시스템을 source of truth로 유지하고, 그 위에 아침 브리핑 레이어를 얹습니다.
 
 ## Demo
 
-내장 fixture만으로 실행할 수 있다. API token이나 외부 서비스가 필요 없다.
+내장 fixture만으로 실행할 수 있습니다. API token이나 외부 서비스가 필요 없습니다.
 
 ```bash
 pnpm install
 pnpm demo --date 2026-05-29
 ```
 
-CLI package를 직접 실행할 수도 있다.
+CLI package를 직접 실행할 수도 있습니다.
 
 ```bash
 pnpm --filter workcue start today --demo --date 2026-05-29
@@ -62,7 +62,7 @@ pnpm --filter workcue start sync --demo --date 2026-05-29 --cache .workcue/workc
 pnpm --filter workcue start explain github:pr-184 --demo --date 2026-05-29
 ```
 
-Obsidian connector는 이런 markdown task를 읽는다.
+Obsidian connector는 이런 markdown task를 읽습니다.
 
 ```markdown
 - [ ] Review billing PR #work 2026-05-30 [estimate:: 25m]
@@ -81,7 +81,7 @@ pnpm today --obsidian-vault /path/to/vault --output ./briefs/2026-05-29.md
 pnpm today --obsidian-vault /path/to/vault --daily-note /path/to/vault/Daily/2026-05-29.md
 ```
 
-반복 실행 시 `<!-- workcue:start -->`부터 `<!-- workcue:end -->` 사이의 managed block만 교체된다. 사용자가 직접 작성한 note 내용은 보존된다.
+반복 실행 시 `<!-- workcue:start -->`부터 `<!-- workcue:end -->` 사이의 managed block만 교체됩니다. 사용자가 직접 작성한 note 내용은 보존됩니다.
 
 예시 출력:
 
@@ -117,12 +117,12 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 
 ## 제품 원칙
 
-- 새로운 todo 앱을 만들지 않는다.
-- 초기 버전은 read-first, write-later 원칙을 지킨다.
-- optional LLM summary보다 deterministic scoring을 먼저 수행한다.
-- 모든 추천에는 evidence가 있어야 한다.
-- local-first와 self-hostable을 기본으로 한다.
-- source와 output은 pluggable하게 확장한다.
+- 새로운 todo 앱을 만들지 않습니다.
+- 초기 버전은 read-first, write-later 원칙을 지킵니다.
+- optional LLM summary보다 deterministic scoring을 먼저 수행합니다.
+- 모든 추천에는 evidence가 있어야 합니다.
+- local-first와 self-hostable을 기본으로 합니다.
+- source와 output은 pluggable하게 확장합니다.
 
 ## 개발
 
@@ -135,13 +135,13 @@ pnpm --filter workcue start today --demo
 
 ## 로컬 설정
 
-로컬 config 파일 생성:
+로컬 config 파일을 생성합니다.
 
 ```bash
 pnpm --filter workcue start init --output .workcue/config.yml
 ```
 
-Obsidian과 output path를 함께 설정:
+Obsidian과 output path를 함께 설정합니다.
 
 ```bash
 pnpm --filter workcue start init \
@@ -151,19 +151,19 @@ pnpm --filter workcue start init \
   --daily-note /path/to/vault/Daily/{{date}}.md
 ```
 
-config 점검:
+config를 점검합니다.
 
 ```bash
 pnpm --filter workcue start doctor --config .workcue/config.yml
 ```
 
-config 기반 실행:
+config 기반으로 실행합니다.
 
 ```bash
 pnpm today --config .workcue/config.yml --date 2026-05-29
 ```
 
-GitHub config는 token 값이 아니라 환경변수 이름만 저장한다.
+GitHub config는 token 값이 아니라 환경변수 이름만 저장합니다.
 
 ```yaml
 sources:
@@ -176,7 +176,7 @@ sources:
     user: your-github-login
 ```
 
-Jira config도 credential 값이 아니라 환경변수 이름만 저장한다.
+Jira config도 credential 값이 아니라 환경변수 이름만 저장합니다.
 
 ```yaml
 sources:
@@ -189,7 +189,7 @@ sources:
       - assignee = currentUser() AND statusCategory != Done
 ```
 
-`workcue init`으로 생성되는 local config는 SQLite cache를 기본으로 켠다.
+`workcue init`으로 생성되는 local config는 SQLite cache를 기본으로 켭니다.
 
 ```yaml
 cache:
@@ -198,7 +198,7 @@ cache:
     path: .workcue/workcue.sqlite
 ```
 
-deterministic scoring은 signal multiplier로 조정할 수 있다.
+deterministic scoring은 signal multiplier로 조정할 수 있습니다.
 
 ```yaml
 scoring:
@@ -208,7 +208,7 @@ scoring:
     waiting_external: 0.7
 ```
 
-LLM summary는 기본적으로 꺼져 있다. OpenAI-compatible endpoint나 Ollama를 켜려면 `llm.enabled`를 설정하고 API key 값은 환경변수에 둔다.
+LLM summary는 기본적으로 꺼져 있습니다. OpenAI-compatible endpoint나 Ollama를 켜려면 `llm.enabled`를 설정하고 API key 값은 환경변수에 둡니다.
 
 ```yaml
 llm:
@@ -221,22 +221,22 @@ llm:
 
 ## MCP Server
 
-WorkCue는 Codex, Claude Desktop, Cursor 같은 MCP client에서 같은 morning brief를 조회할 수 있도록 로컬 MCP server를 제공한다.
+WorkCue는 Codex, Claude Desktop, Cursor 같은 MCP client에서 같은 morning brief를 조회할 수 있도록 로컬 MCP server를 제공합니다.
 
 제공 tools:
 
-- `workcue_sync`: source를 읽고 raw connector payload 없는 normalized item summary를 반환
-- `workcue_today`: demo data, Obsidian vault, configured sources에서 morning brief 생성
-- `workcue_explain`: 특정 work item의 deterministic score와 추천 근거 설명
-- `workcue_doctor`: 외부 source fetch 없이 config readiness 점검
+- `workcue_sync`: source를 읽고 raw connector payload 없는 normalized item summary를 반환합니다.
+- `workcue_today`: demo data, Obsidian vault, configured sources에서 morning brief를 생성합니다.
+- `workcue_explain`: 특정 work item의 deterministic score와 추천 근거를 설명합니다.
+- `workcue_doctor`: 외부 source fetch 없이 config readiness를 점검합니다.
 
-stdio server 실행:
+stdio server를 실행합니다.
 
 ```bash
 pnpm mcp
 ```
 
-MCP client config 예시:
+MCP client config 예시입니다.
 
 ```json
 {
@@ -249,7 +249,7 @@ MCP client config 예시:
 }
 ```
 
-tool arguments 예시:
+tool arguments 예시입니다.
 
 ```json
 {
@@ -259,7 +259,7 @@ tool arguments 예시:
 }
 ```
 
-`configPath`로 로컬 `.workcue/config.yml`을 지정할 수 있다. `GITHUB_TOKEN`, `JIRA_EMAIL`, `JIRA_API_TOKEN` 같은 credential 값은 환경변수에 두고, WorkCue config에는 환경변수 이름만 저장한다.
+`configPath`로 로컬 `.workcue/config.yml`을 지정할 수 있습니다. `GITHUB_TOKEN`, `JIRA_EMAIL`, `JIRA_API_TOKEN` 같은 credential 값은 환경변수에 두고, WorkCue config에는 환경변수 이름만 저장합니다.
 
 ## 문서
 
@@ -272,4 +272,4 @@ tool arguments 예시:
 - [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)
 - [GitHub PR review radar recipe](docs/recipes/github-pr-review-radar.md)
 
-프로젝트 하네스는 `.codex/harnesses/workcue-engineering/`에 있다. 로컬 경로는 Git에 올라가지 않는 `.codex/local.env`에만 둔다. 공개 template은 `.codex/local.example.env`를 사용한다.
+프로젝트 하네스는 `.codex/harnesses/workcue-engineering/`에 있습니다. 로컬 경로는 Git에 올라가지 않는 `.codex/local.env`에만 둡니다. 공개 template은 `.codex/local.example.env`를 사용합니다.
