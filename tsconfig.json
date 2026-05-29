@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/core" },
     { "path": "./packages/connectors/obsidian" },
+    { "path": "./packages/outputs/markdown" },
     { "path": "./apps/cli" }
   ]
 }

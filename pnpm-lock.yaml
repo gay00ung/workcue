@@ -29,6 +29,9 @@ importers:
       '@workcue/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@workcue/output-markdown':
+        specifier: workspace:*
+        version: link:../../packages/outputs/markdown
       commander:
         specifier: ^14.0.0
         version: 14.0.3
@@ -47,6 +50,8 @@ importers:
       zod:
         specifier: ^3.25.0
         version: 3.25.76
+
+  packages/outputs/markdown: {}
 
 packages:
 

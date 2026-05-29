@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { syncObsidianVault } from "@workcue/connector-obsidian";
 import { buildDemoWorkItems, createBrief, renderBriefMarkdown } from "@workcue/core";
+import { upsertDailyNoteSection, writeMarkdownFile } from "@workcue/output-markdown";
 
 const program = new Command();
 
@@ -15,11 +16,21 @@ program
   .description("Generate today's WorkCue brief.")
   .option("--demo", "Use built-in demo data. No tokens or external services required.")
   .option("--obsidian-vault <path>", "Read unchecked markdown tasks from a local Obsidian vault.")
+  .option("--output <path>", "Write the generated brief to a markdown file.")
+  .option("--daily-note <path>", "Upsert the generated brief into a markdown daily note.")
   .option("--assignee <handle>", "Assignee handle to attach to local tasks.", "you")
   .option("--date <date>", "Brief date in YYYY-MM-DD format.", todayDate())
   .option("--top <count>", "Number of focus items to show.", parseInteger, 3)
   .action(
-    async (options: { demo?: boolean; obsidianVault?: string; assignee: string; date: string; top: number }) => {
+    async (options: {
+      demo?: boolean;
+      obsidianVault?: string;
+      output?: string;
+      dailyNote?: string;
+      assignee: string;
+      date: string;
+      top: number;
+    }) => {
       const items = options.demo
         ? buildDemoWorkItems(options.date)
         : options.obsidianVault
@@ -48,7 +59,17 @@ program
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
       });
 
-      process.stdout.write(renderBriefMarkdown(brief));
+      const markdown = renderBriefMarkdown(brief);
+
+      if (options.output) {
+        await writeMarkdownFile({ outputPath: options.output, content: markdown });
+      }
+
+      if (options.dailyNote) {
+        await upsertDailyNoteSection({ notePath: options.dailyNote, content: markdown });
+      }
+
+      process.stdout.write(markdown);
     }
   );
 
