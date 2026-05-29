@@ -15,6 +15,15 @@ export const WorkCueConfigSchema = z.object({
     .default({}),
   sources: z
     .object({
+      github: z
+        .object({
+          enabled: z.boolean().default(false),
+          tokenEnv: z.string().default("GITHUB_TOKEN"),
+          owner: z.string().optional(),
+          repos: z.array(z.string()).default([]),
+          user: z.string().optional()
+        })
+        .default({}),
       obsidian: z
         .object({
           enabled: z.boolean().default(false),

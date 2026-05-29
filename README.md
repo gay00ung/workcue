@@ -68,6 +68,7 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - Core WorkItem, Signal, Recommendation, and Brief models
 - Deterministic demo scoring
 - Local Obsidian markdown task connector
+- GitHub Issues and PR connector package
 - Markdown morning brief renderer
 - Markdown file output
 - Obsidian daily note upsert
@@ -120,6 +121,19 @@ Run from config:
 
 ```bash
 pnpm today --config .workcue/config.yml --date 2026-05-29
+```
+
+GitHub config stores an environment variable name, not the token value:
+
+```yaml
+sources:
+  github:
+    enabled: true
+    tokenEnv: GITHUB_TOKEN
+    owner: your-org
+    repos:
+      - your-repo
+    user: your-github-login
 ```
 
 The project harness lives in `.codex/harnesses/workcue-engineering/`. Local paths belong in `.codex/local.env`, which is ignored by Git. Use `.codex/local.example.env` as the template.

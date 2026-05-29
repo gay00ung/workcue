@@ -70,8 +70,8 @@ function normalizeGitHubItem(item: GitHubIssueSearchItem, plan: GitHubSearchPlan
   return { workItem, searchKind: plan.kind };
 }
 
-function buildHeaders(token: string | undefined): HeadersInit {
-  const headers: HeadersInit = {
+function buildHeaders(token: string | undefined): Record<string, string> {
+  const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28"
   };

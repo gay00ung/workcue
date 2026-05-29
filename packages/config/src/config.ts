@@ -36,6 +36,13 @@ export function createInitialConfig(options: InitConfigOptions = {}): WorkCueCon
       handles: ["you"]
     },
     sources: {
+      github: {
+        enabled: false,
+        tokenEnv: "GITHUB_TOKEN",
+        owner: "owner",
+        repos: ["repo"],
+        user: "you"
+      },
       obsidian: {
         enabled: Boolean(options.obsidianVault),
         vaultPath: options.obsidianVault ?? "/path/to/obsidian-vault",

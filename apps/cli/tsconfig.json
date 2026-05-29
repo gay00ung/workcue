@@ -9,6 +9,7 @@
   "references": [
     { "path": "../../packages/config" },
     { "path": "../../packages/core" },
+    { "path": "../../packages/connectors/github" },
     { "path": "../../packages/connectors/obsidian" },
     { "path": "../../packages/outputs/markdown" }
   ]
