@@ -22,7 +22,7 @@ pnpm --filter workcue start today --demo --date 2026-05-29
 To read local Obsidian tasks:
 
 ```bash
-pnpm today -- --obsidian-vault /path/to/vault --date 2026-05-29
+pnpm today --obsidian-vault /path/to/vault --date 2026-05-29
 ```
 
 The Obsidian connector reads unchecked markdown tasks such as:
@@ -31,6 +31,20 @@ The Obsidian connector reads unchecked markdown tasks such as:
 - [ ] Review billing PR #work 📅 2026-05-30 🔼 [estimate:: 25m]
 - [ ] Follow up with design #waiting [due:: 2026-05-31]
 ```
+
+To write a brief to a markdown file:
+
+```bash
+pnpm today --obsidian-vault /path/to/vault --output ./briefs/2026-05-29.md
+```
+
+To upsert a WorkCue-managed block into an existing daily note:
+
+```bash
+pnpm today --obsidian-vault /path/to/vault --daily-note /path/to/vault/Daily/2026-05-29.md
+```
+
+Only the `<!-- workcue:start -->` to `<!-- workcue:end -->` block is replaced on later runs. Other note content is preserved.
 
 Example output:
 
@@ -55,6 +69,8 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - Deterministic demo scoring
 - Local Obsidian markdown task connector
 - Markdown morning brief renderer
+- Markdown file output
+- Obsidian daily note upsert
 - CLI command: `workcue today --demo`
 - CLI source option: `--obsidian-vault <path>`
 
