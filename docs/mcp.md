@@ -62,6 +62,16 @@ Configured sources:
 }
 ```
 
+One-off Notion board:
+
+```json
+{
+  "notionBoard": "https://www.notion.so/workspace/Tasks-0123456789abcdef0123456789abcdef",
+  "notionTokenEnv": "NOTION_TOKEN",
+  "date": "2026-05-29"
+}
+```
+
 Explain one item:
 
 ```json

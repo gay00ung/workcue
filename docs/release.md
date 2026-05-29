@@ -30,6 +30,7 @@ Publish these packages with the same version:
 - `@workcue/output-markdown`
 - `@workcue/connector-github`
 - `@workcue/connector-jira`
+- `@workcue/connector-notion`
 - `@workcue/connector-obsidian`
 - `@workcue/llm`
 - `@workcue/cache-sqlite`
@@ -80,6 +81,6 @@ Apply the same deprecation message to affected `@workcue/*` packages. Do not for
 
 ## Known Alpha Limits
 
-- GitHub and Jira connectors need real workspace credentials for live source validation.
+- GitHub, Jira, and Notion connectors need real workspace credentials for live source validation.
 - The SQLite cache uses Node.js built-in SQLite support and requires Node 24 or newer.
 - WorkCue is read-first. Write-back to source tools is intentionally not part of this alpha.
