@@ -3,17 +3,11 @@ import { Command } from "commander";
 import {
   createInitialConfig,
   defaultConfigPath,
-  expandDateTemplate,
   loadConfig,
   writeConfig,
-  type InitConfigOptions,
-  type WorkCueConfig
+  type InitConfigOptions
 } from "@workcue/config";
-import { syncGitHub } from "@workcue/connector-github";
-import { syncJira, type SyncJiraOptions } from "@workcue/connector-jira";
-import { syncObsidianVault, type SyncObsidianVaultOptions } from "@workcue/connector-obsidian";
-import { buildDemoWorkItems, createBrief, renderBriefMarkdown, type WorkItem } from "@workcue/core";
-import { upsertDailyNoteSection, writeMarkdownFile } from "@workcue/output-markdown";
+import { runWorkCueToday, writeWorkCueOutputs, type RunWorkCueTodayOptions } from "@workcue/runtime";
 
 const program = new Command();
 
@@ -112,58 +106,38 @@ program
       date: string;
       top: number;
     }) => {
-      const config = options.config ? await loadConfig(options.config) : undefined;
-      const obsidianVault = options.obsidianVault ?? config?.sources.obsidian.vaultPath;
-      const outputPath = options.output ?? expandDateTemplate(config?.outputs.markdown.path, options.date);
-      const dailyNotePath = options.dailyNote ?? expandDateTemplate(config?.outputs.dailyNote.path, options.date);
-      const userHandles = buildUserHandles(options.assignee, config);
-      const items: WorkItem[] = [];
-
-      if (options.demo) {
-        items.push(...buildDemoWorkItems(options.date));
-      }
-
-      if (!options.demo && shouldUseObsidian(options, config, obsidianVault)) {
-        items.push(...(await syncObsidianVault(buildObsidianSyncOptions(obsidianVault, config, userHandles))));
-      }
-
-      if (!options.demo && shouldUseGitHub(config)) {
-        items.push(...(await syncGitHub(buildGitHubSyncOptions(config))));
-      }
-      if (!options.demo && shouldUseJira(config)) {
-        items.push(...(await syncJira(buildJiraSyncOptions(config))));
-      }
-
-      if (items.length === 0 && !options.demo && !config) {
-        console.error("No sources are configured yet. Run with --demo or --obsidian-vault <path>.");
-        process.exitCode = 1;
-        return;
-      }
-
-      if (items.length === 0) {
-        console.error("No open work items found.");
-        process.exitCode = 1;
-        return;
-      }
-
-      const brief = createBrief(items, {
+      const runOptions: RunWorkCueTodayOptions = {
+        assignee: options.assignee,
         date: options.date,
-        topFocusItems: options.top,
-        userHandles,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      });
-
-      const markdown = renderBriefMarkdown(brief);
-
-      if (outputPath && (options.output || config?.outputs.markdown.enabled)) {
-        await writeMarkdownFile({ outputPath, content: markdown });
+        top: options.top
+      };
+      if (options.demo) {
+        runOptions.demo = true;
+      }
+      if (options.config) {
+        runOptions.configPath = options.config;
+      }
+      if (options.obsidianVault) {
+        runOptions.obsidianVault = options.obsidianVault;
       }
 
-      if (dailyNotePath && (options.dailyNote || config?.outputs.dailyNote.enabled)) {
-        await upsertDailyNoteSection({ notePath: dailyNotePath, content: markdown });
+      const result = await runWorkCueToday(runOptions);
+      const outputOptions: Parameters<typeof writeWorkCueOutputs>[0] = {
+        date: options.date,
+        markdown: result.markdown
+      };
+      if (result.config) {
+        outputOptions.config = result.config;
       }
+      if (options.output) {
+        outputOptions.outputPath = options.output;
+      }
+      if (options.dailyNote) {
+        outputOptions.dailyNotePath = options.dailyNote;
+      }
+      await writeWorkCueOutputs(outputOptions);
 
-      process.stdout.write(markdown);
+      process.stdout.write(result.markdown);
     }
   );
 
@@ -186,87 +160,4 @@ function parseInteger(value: string): number {
     throw new Error(`Expected a positive integer, received: ${value}`);
   }
   return parsed;
-}
-
-function shouldUseObsidian(
-  options: { obsidianVault?: string },
-  config: WorkCueConfig | undefined,
-  obsidianVault: string | undefined
-): obsidianVault is string {
-  return Boolean(options.obsidianVault || (config?.sources.obsidian.enabled && obsidianVault));
-}
-
-function buildUserHandles(cliAssignee: string, config: WorkCueConfig | undefined): string[] {
-  const handles = config?.user.handles.length ? config.user.handles : [cliAssignee];
-  return handles.includes(cliAssignee) ? handles : [cliAssignee, ...handles];
-}
-
-function buildObsidianSyncOptions(
-  vaultPath: string,
-  config: WorkCueConfig | undefined,
-  userHandles: string[]
-): SyncObsidianVaultOptions {
-  const options: SyncObsidianVaultOptions = { vaultPath };
-  if (config?.sources.obsidian.include) {
-    options.include = config.sources.obsidian.include;
-  }
-  if (config?.sources.obsidian.exclude) {
-    options.exclude = config.sources.obsidian.exclude;
-  }
-  if (userHandles[0]) {
-    options.assignee = userHandles[0];
-  }
-  return options;
-}
-
-function shouldUseGitHub(config: WorkCueConfig | undefined): config is WorkCueConfig {
-  return Boolean(
-    config?.sources.github.enabled &&
-      config.sources.github.owner &&
-      config.sources.github.repos.length > 0 &&
-      config.sources.github.user
-  );
-}
-
-function buildGitHubSyncOptions(config: WorkCueConfig): Parameters<typeof syncGitHub>[0] {
-  const token = process.env[config.sources.github.tokenEnv];
-  const options: Parameters<typeof syncGitHub>[0] = {
-    owner: config.sources.github.owner ?? "",
-    repos: config.sources.github.repos,
-    user: config.sources.github.user ?? "you"
-  };
-  if (token) {
-    options.token = token;
-  }
-  return options;
-}
-
-function shouldUseJira(config: WorkCueConfig | undefined): config is WorkCueConfig {
-  return Boolean(config?.sources.jira.enabled && config.sources.jira.baseUrl && config.sources.jira.jql.length > 0);
-}
-
-function buildJiraSyncOptions(config: WorkCueConfig): SyncJiraOptions {
-  const email = process.env[config.sources.jira.emailEnv];
-  const apiToken = process.env[config.sources.jira.tokenEnv];
-  const options: SyncJiraOptions = {
-    baseUrl: config.sources.jira.baseUrl ?? "",
-    jql: config.sources.jira.jql
-  };
-  const fieldMap: NonNullable<SyncJiraOptions["fieldMap"]> = {};
-  if (config.sources.jira.fieldMap.sprint) {
-    fieldMap.sprint = config.sources.jira.fieldMap.sprint;
-  }
-  if (config.sources.jira.fieldMap.storyPoints) {
-    fieldMap.storyPoints = config.sources.jira.fieldMap.storyPoints;
-  }
-  if (Object.keys(fieldMap).length > 0) {
-    options.fieldMap = fieldMap;
-  }
-  if (email) {
-    options.email = email;
-  }
-  if (apiToken) {
-    options.apiToken = apiToken;
-  }
-  return options;
 }

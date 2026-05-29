@@ -11,11 +11,7 @@
   },
   "dependencies": {
     "@workcue/config": "workspace:*",
-    "@workcue/connector-github": "workspace:*",
-    "@workcue/connector-jira": "workspace:*",
-    "@workcue/connector-obsidian": "workspace:*",
-    "@workcue/core": "workspace:*",
-    "@workcue/output-markdown": "workspace:*",
+    "@workcue/runtime": "workspace:*",
     "commander": "^14.0.0"
   }
 }

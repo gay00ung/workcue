@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../config" },
+    { "path": "../connectors/github" },
+    { "path": "../connectors/jira" },
+    { "path": "../connectors/obsidian" },
+    { "path": "../core" },
+    { "path": "../outputs/markdown" }
+  ]
+}
