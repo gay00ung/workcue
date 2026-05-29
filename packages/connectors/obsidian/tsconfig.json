@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
     "rootDir": "src",
@@ -7,7 +7,6 @@
   },
   "include": ["src/**/*.ts"],
   "references": [
-    { "path": "../../packages/core" },
-    { "path": "../../packages/connectors/obsidian" }
+    { "path": "../../core" }
   ]
 }

@@ -10,6 +10,7 @@
     "start": "tsx src/index.ts"
   },
   "dependencies": {
+    "@workcue/connector-obsidian": "workspace:*",
     "@workcue/core": "workspace:*",
     "commander": "^14.0.0"
   }

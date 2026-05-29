@@ -19,6 +19,19 @@ You can also run the CLI package directly:
 pnpm --filter workcue start today --demo --date 2026-05-29
 ```
 
+To read local Obsidian tasks:
+
+```bash
+pnpm today -- --obsidian-vault /path/to/vault --date 2026-05-29
+```
+
+The Obsidian connector reads unchecked markdown tasks such as:
+
+```markdown
+- [ ] Review billing PR #work 📅 2026-05-30 🔼 [estimate:: 25m]
+- [ ] Follow up with design #waiting [due:: 2026-05-31]
+```
+
 Example output:
 
 ```markdown
@@ -40,8 +53,10 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - TypeScript and pnpm monorepo scaffold
 - Core WorkItem, Signal, Recommendation, and Brief models
 - Deterministic demo scoring
+- Local Obsidian markdown task connector
 - Markdown morning brief renderer
 - CLI command: `workcue today --demo`
+- CLI source option: `--obsidian-vault <path>`
 
 ## Product Principles
 
