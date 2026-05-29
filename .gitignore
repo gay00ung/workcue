@@ -8,5 +8,11 @@ _workspace_*/
 .env.*
 !.env.example
 
+# Dependency and build output
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+
 # OS/editor noise
 .DS_Store
