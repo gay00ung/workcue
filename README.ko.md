@@ -9,6 +9,7 @@
   <img alt="Local first" src="https://img.shields.io/badge/local--first-yes-0f766e?style=flat">
   <img alt="MCP ready" src="https://img.shields.io/badge/MCP-ready-7c3aed?style=flat">
   <img alt="No telemetry" src="https://img.shields.io/badge/telemetry-none-111827?style=flat">
+  <img alt="Release alpha" src="https://img.shields.io/badge/release-v0.1.0--alpha.1-f59e0b?style=flat">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-3178c6?style=flat">
   <img alt="pnpm" src="https://img.shields.io/badge/pnpm-10.x-f69220?style=flat">
   <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ed?style=flat">
@@ -35,7 +36,7 @@ pnpm demo --date 2026-05-29
 CLI package를 직접 실행할 수도 있습니다.
 
 ```bash
-pnpm --filter workcue start today --demo --date 2026-05-29
+pnpm today --demo --date 2026-05-29
 ```
 
 로컬 Obsidian vault의 unchecked task를 읽으려면:
@@ -47,19 +48,19 @@ pnpm today --obsidian-vault /path/to/vault --date 2026-05-29
 brief를 만들기 전에 정규화된 source item만 확인하려면:
 
 ```bash
-pnpm --filter workcue start sync --demo --date 2026-05-29
+pnpm sync --demo --date 2026-05-29
 ```
 
 sync 결과를 로컬 SQLite cache에 저장하려면:
 
 ```bash
-pnpm --filter workcue start sync --demo --date 2026-05-29 --cache .workcue/workcue.sqlite
+pnpm sync --demo --date 2026-05-29 --cache .workcue/workcue.sqlite
 ```
 
 특정 추천 항목의 점수 근거를 설명하려면:
 
 ```bash
-pnpm --filter workcue start explain github:pr-184 --demo --date 2026-05-29
+pnpm explain github:pr-184 --demo --date 2026-05-29
 ```
 
 Obsidian connector는 이런 markdown task를 읽습니다.
@@ -128,23 +129,35 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 
 ```bash
 pnpm install
+pnpm build
 pnpm typecheck
 pnpm test
-pnpm --filter workcue start today --demo
+pnpm today --demo
 ```
+
+## Alpha Release Check
+
+WorkCue alpha package는 Node.js 24 이상을 기준으로 합니다.
+
+```bash
+pnpm install --frozen-lockfile
+pnpm release:check
+```
+
+release check는 `dist` build, test, 공개 파일 개인정보 패턴 scan, compiled CLI와 MCP tool handler smoke, package tarball 생성, 임시 prefix 설치 검증까지 수행합니다.
 
 ## 로컬 설정
 
 로컬 config 파일을 생성합니다.
 
 ```bash
-pnpm --filter workcue start init --output .workcue/config.yml
+pnpm --filter workcue dev init --output .workcue/config.yml
 ```
 
 Obsidian과 output path를 함께 설정합니다.
 
 ```bash
-pnpm --filter workcue start init \
+pnpm --filter workcue dev init \
   --output .workcue/config.yml \
   --obsidian-vault /path/to/vault \
   --markdown-output ./briefs/{{date}}.md \
@@ -154,7 +167,7 @@ pnpm --filter workcue start init \
 config를 점검합니다.
 
 ```bash
-pnpm --filter workcue start doctor --config .workcue/config.yml
+pnpm doctor --config .workcue/config.yml
 ```
 
 config 기반으로 실행합니다.
@@ -268,8 +281,10 @@ tool arguments 예시입니다.
 - [Docker](docs/docker.md)
 - [LLM summaries](docs/llm.md)
 - [MCP server](docs/mcp.md)
+- [Release guide](docs/release.md)
 - [Scoring](docs/scoring.md)
 - [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)
 - [GitHub PR review radar recipe](docs/recipes/github-pr-review-radar.md)
+- [Changelog](CHANGELOG.md)
 
 프로젝트 하네스는 `.codex/harnesses/workcue-engineering/`에 있습니다. 로컬 경로는 Git에 올라가지 않는 `.codex/local.env`에만 둡니다. 공개 template은 `.codex/local.example.env`를 사용합니다.

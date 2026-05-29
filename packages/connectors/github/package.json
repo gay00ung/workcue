@@ -1,12 +1,23 @@
 {
   "name": "@workcue/connector-github",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.1",
+  "description": "GitHub Issues and Pull Requests connector for WorkCue.",
   "type": "module",
-  "private": true,
+  "private": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./dist/index.js"
   },
-  "types": "./src/index.ts",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@workcue/core": "workspace:*"
   }

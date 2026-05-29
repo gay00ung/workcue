@@ -1,13 +1,31 @@
 {
   "name": "@workcue/mcp-server",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.1",
+  "description": "MCP stdio server for WorkCue morning briefs.",
   "type": "module",
-  "private": true,
+  "private": false,
   "bin": {
-    "workcue-mcp": "./src/index.ts"
+    "workcue-mcp": "./dist/index.js"
+  },
+  "exports": {
+    ".": "./dist/server.js"
+  },
+  "types": "./dist/server.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
-    "start": "tsx src/index.ts"
+    "build": "tsc -b",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

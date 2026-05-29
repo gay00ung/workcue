@@ -1,17 +1,26 @@
 {
   "name": "workcue-repo",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.1",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.30.3",
   "scripts": {
+    "build": "tsc -b",
+    "clean": "node scripts/clean.mjs",
+    "demo": "pnpm --filter workcue dev today --demo",
+    "doctor": "pnpm --filter workcue dev doctor",
+    "explain": "pnpm --filter workcue dev explain",
+    "mcp": "pnpm --filter @workcue/mcp-server dev",
+    "public-safety": "node scripts/public-safety-scan.mjs",
+    "release:check": "pnpm clean && pnpm build && pnpm test && pnpm public-safety && pnpm release:smoke && pnpm release:pack",
+    "release:pack": "node scripts/release-pack.mjs",
+    "release:smoke": "node scripts/release-smoke.mjs",
     "start": "pnpm --filter workcue start",
-    "demo": "tsx apps/cli/src/index.ts today --demo",
-    "mcp": "tsx apps/mcp-server/src/index.ts",
-    "today": "tsx apps/cli/src/index.ts today",
-    "typecheck": "tsc -b",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "sync": "pnpm --filter workcue dev sync",
+    "today": "pnpm --filter workcue dev today",
+    "typecheck": "tsc -b --pretty false"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

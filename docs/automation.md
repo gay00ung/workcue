@@ -14,7 +14,7 @@ WorkCue currently fails fast when a configured source fails. Disable unstable so
 Create a local config:
 
 ```bash
-pnpm --filter workcue start init \
+pnpm --filter workcue dev init \
   --output .workcue/config.yml \
   --markdown-output ./briefs/{{date}}.md
 ```
@@ -22,7 +22,7 @@ pnpm --filter workcue start init \
 Check the config:
 
 ```bash
-pnpm --filter workcue start doctor --config .workcue/config.yml
+pnpm doctor --config .workcue/config.yml
 ```
 
 Run once manually:
@@ -84,13 +84,13 @@ The automation should report source failures with the failing source name and sh
 Run source sync without a brief:
 
 ```bash
-pnpm --filter workcue start sync --config .workcue/config.yml --json --cache .workcue/workcue.sqlite
+pnpm sync --config .workcue/config.yml --json --cache .workcue/workcue.sqlite
 ```
 
 Explain one item:
 
 ```bash
-pnpm --filter workcue start explain github:pr-184 --config .workcue/config.yml
+pnpm explain github:pr-184 --config .workcue/config.yml
 ```
 
 Check MCP locally:

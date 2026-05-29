@@ -15,12 +15,27 @@ The WorkCue MCP server exposes the same local-first runtime used by the CLI.
 
 ## Local Client Config
 
+From a source checkout:
+
 ```json
 {
   "mcpServers": {
     "workcue": {
       "command": "pnpm",
       "args": ["--dir", "/path/to/workcue", "mcp"]
+    }
+  }
+}
+```
+
+From an installed package:
+
+```json
+{
+  "mcpServers": {
+    "workcue": {
+      "command": "workcue-mcp",
+      "args": []
     }
   }
 }

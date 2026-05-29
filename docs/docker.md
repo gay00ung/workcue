@@ -11,7 +11,7 @@ docker build -t workcue:local .
 ## Demo
 
 ```bash
-docker run --rm workcue:local demo
+docker run --rm workcue:local
 ```
 
 ## Run With Config

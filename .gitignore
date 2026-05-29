@@ -1,6 +1,7 @@
 # Local Codex and WorkCue runtime state
 .codex/local.env
 .workcue/
+.release/
 _workspace/
 _workspace_*/
 

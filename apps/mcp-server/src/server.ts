@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { defaultConfigPath, loadConfig } from "@workcue/config";
 import {
@@ -44,7 +45,7 @@ export type DoctorToolArgs = z.infer<typeof DoctorToolArgsSchema>;
 export function createWorkCueMcpServer(): McpServer {
   const server = new McpServer({
     name: "workcue-mcp",
-    version: "0.0.0"
+    version: readPackageVersion()
   });
 
   server.tool(
@@ -182,6 +183,11 @@ export async function runDoctorTool(args: DoctorToolArgs): Promise<string> {
 
 function todayDate(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function readPackageVersion(): string {
+  const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version?: string };
+  return packageJson.version ?? "unknown";
 }
 
 function buildRunOptions(

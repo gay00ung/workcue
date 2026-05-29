@@ -6,7 +6,8 @@ RUN npm install -g pnpm@10.30.3
 
 COPY . .
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile \
+  && pnpm build
 
-ENTRYPOINT ["pnpm"]
-CMD ["demo"]
+ENTRYPOINT ["node", "apps/cli/dist/index.js"]
+CMD ["today", "--demo"]

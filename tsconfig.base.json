@@ -4,6 +4,18 @@
     "lib": ["ES2022"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "baseUrl": ".",
+    "paths": {
+      "@workcue/cache-sqlite": ["packages/cache/sqlite/src/index.ts"],
+      "@workcue/config": ["packages/config/src/index.ts"],
+      "@workcue/connector-github": ["packages/connectors/github/src/index.ts"],
+      "@workcue/connector-jira": ["packages/connectors/jira/src/index.ts"],
+      "@workcue/connector-obsidian": ["packages/connectors/obsidian/src/index.ts"],
+      "@workcue/core": ["packages/core/src/index.ts"],
+      "@workcue/llm": ["packages/llm/src/index.ts"],
+      "@workcue/output-markdown": ["packages/outputs/markdown/src/index.ts"],
+      "@workcue/runtime": ["packages/runtime/src/index.ts"]
+    },
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,

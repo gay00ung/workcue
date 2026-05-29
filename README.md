@@ -9,6 +9,7 @@
   <img alt="Local first" src="https://img.shields.io/badge/local--first-yes-0f766e?style=flat">
   <img alt="MCP ready" src="https://img.shields.io/badge/MCP-ready-7c3aed?style=flat">
   <img alt="No telemetry" src="https://img.shields.io/badge/telemetry-none-111827?style=flat">
+  <img alt="Release alpha" src="https://img.shields.io/badge/release-v0.1.0--alpha.1-f59e0b?style=flat">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-3178c6?style=flat">
   <img alt="pnpm" src="https://img.shields.io/badge/pnpm-10.x-f69220?style=flat">
   <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ed?style=flat">
@@ -35,7 +36,7 @@ pnpm demo --date 2026-05-29
 You can also run the CLI package directly:
 
 ```bash
-pnpm --filter workcue start today --demo --date 2026-05-29
+pnpm today --demo --date 2026-05-29
 ```
 
 To read local Obsidian tasks:
@@ -47,19 +48,19 @@ pnpm today --obsidian-vault /path/to/vault --date 2026-05-29
 To inspect normalized source items without generating a brief:
 
 ```bash
-pnpm --filter workcue start sync --demo --date 2026-05-29
+pnpm sync --demo --date 2026-05-29
 ```
 
 To write synced items to a local SQLite cache:
 
 ```bash
-pnpm --filter workcue start sync --demo --date 2026-05-29 --cache .workcue/workcue.sqlite
+pnpm sync --demo --date 2026-05-29 --cache .workcue/workcue.sqlite
 ```
 
 To explain one ranked work item:
 
 ```bash
-pnpm --filter workcue start explain github:pr-184 --demo --date 2026-05-29
+pnpm explain github:pr-184 --demo --date 2026-05-29
 ```
 
 The Obsidian connector reads unchecked markdown tasks such as:
@@ -129,23 +130,35 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 
 ```bash
 pnpm install
+pnpm build
 pnpm typecheck
 pnpm test
-pnpm --filter workcue start today --demo
+pnpm today --demo
 ```
+
+## Alpha Release Check
+
+WorkCue targets Node.js 24 or newer for the alpha package set.
+
+```bash
+pnpm install --frozen-lockfile
+pnpm release:check
+```
+
+The release check builds `dist`, runs tests, scans public files for private paths or token-like values, exercises the compiled CLI and MCP tool handlers, creates package tarballs, and installs those tarballs into a temporary prefix.
 
 ## Local Config
 
 Create a local config file:
 
 ```bash
-pnpm --filter workcue start init --output .workcue/config.yml
+pnpm --filter workcue dev init --output .workcue/config.yml
 ```
 
 Use local Obsidian and output paths:
 
 ```bash
-pnpm --filter workcue start init \
+pnpm --filter workcue dev init \
   --output .workcue/config.yml \
   --obsidian-vault /path/to/vault \
   --markdown-output ./briefs/{{date}}.md \
@@ -155,7 +168,7 @@ pnpm --filter workcue start init \
 Check the config:
 
 ```bash
-pnpm --filter workcue start doctor --config .workcue/config.yml
+pnpm doctor --config .workcue/config.yml
 ```
 
 Run from config:
@@ -269,8 +282,10 @@ More docs:
 - [Docker](docs/docker.md)
 - [LLM summaries](docs/llm.md)
 - [MCP server](docs/mcp.md)
+- [Release guide](docs/release.md)
 - [Scoring](docs/scoring.md)
 - [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)
 - [GitHub PR review radar recipe](docs/recipes/github-pr-review-radar.md)
+- [Changelog](CHANGELOG.md)
 
 The project harness lives in `.codex/harnesses/workcue-engineering/`. Local paths belong in `.codex/local.env`, which is ignored by Git. Use `.codex/local.example.env` as the template.
