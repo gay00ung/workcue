@@ -64,6 +64,16 @@ export const WorkCueConfigSchema = z.object({
         })
         .default({})
     })
+    .default({}),
+  cache: z
+    .object({
+      sqlite: z
+        .object({
+          enabled: z.boolean().default(false),
+          path: z.string().default(".workcue/workcue.sqlite")
+        })
+        .default({})
+    })
     .default({})
 });
 

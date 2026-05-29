@@ -67,6 +67,12 @@ export function createInitialConfig(options: InitConfigOptions = {}): WorkCueCon
         enabled: Boolean(options.dailyNote),
         path: options.dailyNote ?? "/path/to/obsidian-vault/Daily/{{date}}.md"
       }
+    },
+    cache: {
+      sqlite: {
+        enabled: true,
+        path: ".workcue/workcue.sqlite"
+      }
     }
   });
 }

@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/core" },
     { "path": "./packages/config" },
+    { "path": "./packages/cache/sqlite" },
     { "path": "./packages/connectors/github" },
     { "path": "./packages/connectors/jira" },
     { "path": "./packages/connectors/obsidian" },
