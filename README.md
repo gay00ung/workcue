@@ -15,6 +15,10 @@
   <img alt="License Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-64748b?style=for-the-badge">
 </p>
 
+<p align="center">
+  <img src="assets/workcue-hero.png" alt="WorkCue morning brief hero" width="100%">
+</p>
+
 Wake up to the right work.
 
 WorkCue is a local-first morning planner for work scattered across existing tools. It does not replace your todo app or kanban board. It reads the places where work already lives, ranks what deserves attention today, and explains why.
@@ -268,6 +272,5 @@ More docs:
 - [Scoring](docs/scoring.md)
 - [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)
 - [GitHub PR review radar recipe](docs/recipes/github-pr-review-radar.md)
-- [Brand image prompts](docs/brand-image-prompts.md)
 
 The project harness lives in `.codex/harnesses/workcue-engineering/`. Local paths belong in `.codex/local.env`, which is ignored by Git. Use `.codex/local.example.env` as the template.

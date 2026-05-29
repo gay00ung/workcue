@@ -15,6 +15,10 @@
   <img alt="License Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-64748b?style=for-the-badge">
 </p>
 
+<p align="center">
+  <img src="assets/workcue-hero.png" alt="WorkCue morning brief hero" width="100%">
+</p>
+
 업무 도구는 그대로, 오늘 할 일만 자동으로.
 
 WorkCue는 Jira, GitHub, Obsidian 같은 기존 업무 도구에 흩어진 일을 읽고 오늘 집중해야 할 작업을 근거와 함께 추천하는 로컬 우선 morning planner다. 새로운 todo 앱이나 칸반 보드를 만들지 않는다. 이미 쓰는 업무 시스템을 source of truth로 유지하고, 그 위에 아침 브리핑 레이어를 얹는다.
@@ -267,6 +271,5 @@ tool arguments 예시:
 - [Scoring](docs/scoring.md)
 - [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)
 - [GitHub PR review radar recipe](docs/recipes/github-pr-review-radar.md)
-- [Brand image prompts](docs/brand-image-prompts.md)
 
 프로젝트 하네스는 `.codex/harnesses/workcue-engineering/`에 있다. 로컬 경로는 Git에 올라가지 않는 `.codex/local.env`에만 둔다. 공개 template은 `.codex/local.example.env`를 사용한다.
