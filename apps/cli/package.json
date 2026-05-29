@@ -1,13 +1,27 @@
 {
   "name": "workcue",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.1",
+  "description": "Local-first morning brief CLI for work scattered across existing tools.",
   "type": "module",
-  "private": true,
+  "private": false,
   "bin": {
-    "workcue": "./src/index.ts"
+    "workcue": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
-    "start": "tsx src/index.ts"
+    "build": "tsc -b",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@workcue/cache-sqlite": "workspace:*",

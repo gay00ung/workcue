@@ -22,14 +22,8 @@ jobs:
         with:
           version: 10.30.3
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
+      - run: pnpm build
       - run: pnpm test
-      - name: Public safety scan
-        run: |
-          PRIVATE_PATTERN='/''Users/|/''Desktop/projects|g''mail|ghp_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}'
-          if git ls-files -co --exclude-standard \
-            | xargs rg -n "$PRIVATE_PATTERN"; then
-            echo "Potential private path or token value found."
-            exit 1
-          fi
-          echo "Public safety scan passed."
+      - run: pnpm public-safety
+      - run: pnpm release:smoke
+      - run: pnpm release:pack

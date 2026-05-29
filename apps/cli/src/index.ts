@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Command } from "commander";
@@ -24,7 +25,7 @@ const program = new Command();
 program
   .name("workcue")
   .description("Local-first morning brief for work scattered across existing tools.")
-  .version("0.0.0");
+  .version(readPackageVersion());
 
 program
   .command("init")
@@ -369,4 +370,9 @@ function formatSourceCounts(sourceCounts: Record<string, number>): string {
 async function writeJsonFile(outputPath: string, payload: unknown): Promise<void> {
   await mkdir(path.dirname(path.resolve(outputPath)), { recursive: true });
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+}
+
+function readPackageVersion(): string {
+  const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version?: string };
+  return packageJson.version ?? "unknown";
 }
