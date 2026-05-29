@@ -9,7 +9,7 @@
   <img alt="Local first" src="https://img.shields.io/badge/local--first-yes-0f766e?style=flat">
   <img alt="MCP ready" src="https://img.shields.io/badge/MCP-ready-7c3aed?style=flat">
   <img alt="No telemetry" src="https://img.shields.io/badge/telemetry-none-111827?style=flat">
-  <img alt="Release alpha" src="https://img.shields.io/badge/release-v0.1.0--alpha.1-f59e0b?style=flat">
+  <img alt="Release alpha" src="https://img.shields.io/badge/release-v0.1.0--alpha.2-f59e0b?style=flat">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-3178c6?style=flat">
   <img alt="pnpm" src="https://img.shields.io/badge/pnpm-10.x-f69220?style=flat">
   <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ed?style=flat">
@@ -23,6 +23,30 @@
 Wake up to the right work.
 
 WorkCue is a local-first morning planner for work scattered across existing tools. It does not replace your todo app or kanban board. It reads the places where work already lives, ranks what deserves attention today, and explains why.
+
+## Install
+
+For the published CLI package, use npm outside a WorkCue source checkout:
+
+```bash
+npm install -g workcue@alpha
+workcue today --demo
+```
+
+Or run it without a global install:
+
+```bash
+npx workcue@alpha today --demo
+```
+
+If you cloned this repository for development, use pnpm:
+
+```bash
+pnpm install
+pnpm today --demo
+```
+
+Do not run `npm install workcue` inside this source checkout. The repository uses pnpm workspaces, and mixing npm with pnpm-managed `node_modules` can trigger npm arborist errors.
 
 ## Demo
 
@@ -328,6 +352,7 @@ More docs:
 - [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)
 - [GitHub PR review radar recipe](docs/recipes/github-pr-review-radar.md)
 - [Notion kanban recipe](docs/recipes/notion-kanban.md)
+- [Troubleshooting](docs/troubleshooting.md)
 - [Changelog](CHANGELOG.md)
 
 The project harness lives in `.codex/harnesses/workcue-engineering/`. Local paths belong in `.codex/local.env`, which is ignored by Git. Use `.codex/local.example.env` as the template.

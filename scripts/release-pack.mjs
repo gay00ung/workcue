@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { access, mkdtemp, readdir, rm } from "node:fs/promises";
+import { access, mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -19,6 +19,8 @@ const packageOrder = [
 ];
 
 const tarballDir = path.resolve(".release", "tarballs");
+const packageJson = JSON.parse(await readFile("apps/cli/package.json", "utf8"));
+const expectedVersion = packageJson.version;
 await rm(path.resolve(".release"), { force: true, recursive: true });
 
 for (const packageName of packageOrder) {
@@ -47,7 +49,7 @@ const installRoot = await mkdtemp(path.join(os.tmpdir(), "workcue-pack-install-"
 run("npm", ["install", "--prefix", installRoot, "--no-audit", "--fund=false", ...tarballs]);
 
 const binRoot = path.join(installRoot, "node_modules", ".bin");
-run(path.join(binRoot, "workcue"), ["--version"], { expectedIncludes: "0.1.0-alpha.1" });
+run(path.join(binRoot, "workcue"), ["--version"], { expectedIncludes: expectedVersion });
 run(path.join(binRoot, "workcue"), ["today", "--demo", "--date", "2026-05-29"], { expectedIncludes: "Top recommendation" });
 await access(path.join(binRoot, "workcue-mcp"));
 

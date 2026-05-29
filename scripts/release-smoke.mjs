@@ -5,8 +5,10 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const date = "2026-05-29";
+const packageJson = JSON.parse(await readFile("apps/cli/package.json", "utf8"));
+const expectedVersion = packageJson.version;
 
-run("node", ["apps/cli/dist/index.js", "--version"], { expectedIncludes: "0.1.0-alpha.1" });
+run("node", ["apps/cli/dist/index.js", "--version"], { expectedIncludes: expectedVersion });
 run("node", ["apps/cli/dist/index.js", "--help"], { expectedIncludes: "Generate today's WorkCue brief" });
 run("node", ["apps/cli/dist/index.js", "today", "--demo", "--date", date], { expectedIncludes: "Top recommendation" });
 

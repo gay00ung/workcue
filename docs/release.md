@@ -1,6 +1,6 @@
 # Release Guide
 
-This guide prepares WorkCue for `v0.1.0-alpha.1` developer preview releases. It avoids local paths, token values, private vault data, and generated briefs in Git.
+This guide prepares WorkCue for `v0.1.0-alpha.2` developer preview releases. It avoids local paths, token values, private vault data, and generated briefs in Git.
 
 ## Release Standard
 
@@ -56,8 +56,8 @@ Use an npm account with two-factor authentication enabled. Do not put npm tokens
 After publish succeeds:
 
 ```bash
-git tag v0.1.0-alpha.1
-git push origin v0.1.0-alpha.1
+git tag v0.1.0-alpha.2
+git push origin v0.1.0-alpha.2
 ```
 
 Release notes should include:
@@ -74,7 +74,7 @@ Release notes should include:
 If a publish issue is found before adoption:
 
 ```bash
-npm deprecate workcue@0.1.0-alpha.1 "Use the next alpha release."
+npm deprecate workcue@0.1.0-alpha.2 "Use the next alpha release."
 ```
 
 Apply the same deprecation message to affected `@workcue/*` packages. Do not force-delete package versions unless there is a credential or legal exposure issue.

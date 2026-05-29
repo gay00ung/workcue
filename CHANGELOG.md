@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.1.0-alpha.2 - 2026-05-29
+
+### Added
+
+- Notion kanban database/data source connector preview.
+- `sources.notion.boards` config for Notion board links, database IDs, and data source IDs.
+- CLI and MCP Notion inputs through `--notion-board`, `notionBoard`, and `notionTokenEnv`.
+- Notion kanban recipe with property mapping and privacy guidance.
+- Project-aware in-progress recommendation evidence.
+
+### Changed
+
+- Release package set now includes `@workcue/connector-notion`.
+- README install guidance now separates npm package installation from source checkout development.
+
+### Notes
+
+- This alpha includes Notion row property sync, but still does not read Notion page body blocks.
+- Live Notion validation requires a user-owned integration token and a shared database/data source.
+
 ## 0.1.0-alpha.1 - 2026-05-29
 
 ### Added
