@@ -12,11 +12,36 @@ describe("config", () => {
     expect(config.sources.obsidian.vaultPath).toBe("/path/to/obsidian-vault");
     expect(config.sources.github.enabled).toBe(false);
     expect(config.sources.jira.enabled).toBe(false);
+    expect(config.sources.notion.enabled).toBe(false);
+    expect(config.sources.notion.tokenEnv).toBe("NOTION_TOKEN");
+    expect(config.sources.notion.boards).toEqual([]);
     expect(config.cache.sqlite.enabled).toBe(true);
     expect(config.cache.sqlite.path).toBe(".workcue/workcue.sqlite");
     expect(config.scoring.signalWeights).toEqual({});
     expect(config.llm.enabled).toBe(false);
     expect(config.llm.apiKeyEnv).toBe("OPENAI_API_KEY");
+  });
+
+  it("creates a Notion board config when requested", () => {
+    const config = createInitialConfig({ notionBoard: "https://www.notion.so/example/Tasks-0123456789abcdef0123456789abcdef" });
+
+    expect(config.sources.notion).toMatchObject({
+      enabled: true,
+      tokenEnv: "NOTION_TOKEN",
+      boards: [
+        {
+          url: "https://www.notion.so/example/Tasks-0123456789abcdef0123456789abcdef",
+          titleProperty: "Name",
+          statusProperty: "Status",
+          dueProperty: "Due",
+          priorityProperty: "Priority",
+          assigneeProperty: "Owner",
+          projectProperty: "Project",
+          labelsProperty: "Tags",
+          estimateProperty: "Estimate"
+        }
+      ]
+    });
   });
 
   it("writes and loads config files", async () => {

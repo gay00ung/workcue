@@ -6,6 +6,7 @@
     { "path": "./packages/cache/sqlite" },
     { "path": "./packages/connectors/github" },
     { "path": "./packages/connectors/jira" },
+    { "path": "./packages/connectors/notion" },
     { "path": "./packages/connectors/obsidian" },
     { "path": "./packages/llm" },
     { "path": "./packages/outputs/markdown" },

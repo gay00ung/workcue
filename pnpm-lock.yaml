@@ -82,6 +82,12 @@ importers:
         specifier: workspace:*
         version: link:../../core
 
+  packages/connectors/notion:
+    dependencies:
+      '@workcue/core':
+        specifier: workspace:*
+        version: link:../../core
+
   packages/connectors/obsidian:
     dependencies:
       '@workcue/core':
@@ -116,6 +122,9 @@ importers:
       '@workcue/connector-jira':
         specifier: workspace:*
         version: link:../connectors/jira
+      '@workcue/connector-notion':
+        specifier: workspace:*
+        version: link:../connectors/notion
       '@workcue/connector-obsidian':
         specifier: workspace:*
         version: link:../connectors/obsidian

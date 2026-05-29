@@ -32,24 +32,36 @@ program
   .description("Create a local WorkCue config file.")
   .option("--output <path>", "Config path to write.", defaultConfigPath())
   .option("--obsidian-vault <path>", "Local Obsidian vault path to enable.")
+  .option("--notion-board <url-or-id>", "Notion kanban database or data source URL/ID to enable.")
   .option("--markdown-output <path>", "Markdown output path. Supports {{date}}.")
   .option("--daily-note <path>", "Daily note output path. Supports {{date}}.")
-  .action(async (options: { output: string; obsidianVault?: string; markdownOutput?: string; dailyNote?: string }) => {
-    const initOptions: InitConfigOptions = {};
-    if (options.obsidianVault) {
-      initOptions.obsidianVault = options.obsidianVault;
-    }
-    if (options.markdownOutput) {
-      initOptions.markdownOutput = options.markdownOutput;
-    }
-    if (options.dailyNote) {
-      initOptions.dailyNote = options.dailyNote;
-    }
-    const config = createInitialConfig(initOptions);
+  .action(
+    async (options: {
+      output: string;
+      obsidianVault?: string;
+      notionBoard?: string;
+      markdownOutput?: string;
+      dailyNote?: string;
+    }) => {
+      const initOptions: InitConfigOptions = {};
+      if (options.obsidianVault) {
+        initOptions.obsidianVault = options.obsidianVault;
+      }
+      if (options.notionBoard) {
+        initOptions.notionBoard = options.notionBoard;
+      }
+      if (options.markdownOutput) {
+        initOptions.markdownOutput = options.markdownOutput;
+      }
+      if (options.dailyNote) {
+        initOptions.dailyNote = options.dailyNote;
+      }
+      const config = createInitialConfig(initOptions);
 
-    await writeConfig(options.output, config);
-    process.stdout.write(`Wrote WorkCue config to ${options.output}\n`);
-  });
+      await writeConfig(options.output, config);
+      process.stdout.write(`Wrote WorkCue config to ${options.output}\n`);
+    }
+  );
 
 program
   .command("doctor")
@@ -89,6 +101,16 @@ program
       lines.push("Jira: disabled");
     }
 
+    if (config.sources.notion?.enabled) {
+      lines.push(
+        config.sources.notion.boards.length > 0
+          ? `Notion: configured ${config.sources.notion.boards.length} board(s) via ${config.sources.notion.tokenEnv}`
+          : "Notion: enabled but missing boards"
+      );
+    } else {
+      lines.push("Notion: disabled");
+    }
+
     lines.push(config.outputs.markdown.enabled ? "Markdown output: enabled" : "Markdown output: disabled");
     lines.push(config.outputs.dailyNote.enabled ? "Daily note output: enabled" : "Daily note output: disabled");
     lines.push(config.cache.sqlite.enabled ? `SQLite cache: enabled ${config.cache.sqlite.path}` : "SQLite cache: disabled");
@@ -103,6 +125,8 @@ program
   .option("--config <path>", "Config path to read.")
   .option("--demo", "Use built-in demo data. No tokens or external services required.")
   .option("--obsidian-vault <path>", "Read unchecked markdown tasks from a local Obsidian vault.")
+  .option("--notion-board <url-or-id>", "Read cards from a Notion kanban database or data source.")
+  .option("--notion-token-env <name>", "Environment variable name that stores the Notion integration token.", "NOTION_TOKEN")
   .option("--assignee <handle>", "Assignee handle to attach to local tasks.", "you")
   .option("--date <date>", "Sync date in YYYY-MM-DD format.", todayDate())
   .option("--json", "Print a JSON payload.")
@@ -116,6 +140,8 @@ program
       date: string;
       demo?: boolean;
       json?: boolean;
+      notionBoard?: string;
+      notionTokenEnv?: string;
       obsidianVault?: string;
       output?: string;
     }) => {
@@ -151,6 +177,8 @@ program
   .option("--config <path>", "Config path to read.")
   .option("--demo", "Use built-in demo data. No tokens or external services required.")
   .option("--obsidian-vault <path>", "Read unchecked markdown tasks from a local Obsidian vault.")
+  .option("--notion-board <url-or-id>", "Read cards from a Notion kanban database or data source.")
+  .option("--notion-token-env <name>", "Environment variable name that stores the Notion integration token.", "NOTION_TOKEN")
   .option("--output <path>", "Write the generated brief to a markdown file.")
   .option("--daily-note <path>", "Upsert the generated brief into a markdown daily note.")
   .option("--assignee <handle>", "Assignee handle to attach to local tasks.", "you")
@@ -160,6 +188,8 @@ program
     async (options: {
       config?: string;
       demo?: boolean;
+      notionBoard?: string;
+      notionTokenEnv?: string;
       obsidianVault?: string;
       output?: string;
       dailyNote?: string;
@@ -194,6 +224,8 @@ program
   .option("--config <path>", "Config path to read.")
   .option("--demo", "Use built-in demo data. No tokens or external services required.")
   .option("--obsidian-vault <path>", "Read unchecked markdown tasks from a local Obsidian vault.")
+  .option("--notion-board <url-or-id>", "Read cards from a Notion kanban database or data source.")
+  .option("--notion-token-env <name>", "Environment variable name that stores the Notion integration token.", "NOTION_TOKEN")
   .option("--assignee <handle>", "Assignee handle to attach to local tasks.", "you")
   .option("--date <date>", "Brief date in YYYY-MM-DD format.", todayDate())
   .option("--json", "Print a JSON explanation payload.")
@@ -206,6 +238,8 @@ program
         date: string;
         demo?: boolean;
         json?: boolean;
+        notionBoard?: string;
+        notionTokenEnv?: string;
         obsidianVault?: string;
       }
     ) => {
@@ -248,6 +282,8 @@ function buildRunOptions(options: {
   config?: string;
   date: string;
   demo?: boolean;
+  notionBoard?: string;
+  notionTokenEnv?: string;
   obsidianVault?: string;
   top?: number;
 }): RunWorkCueTodayOptions {
@@ -263,6 +299,12 @@ function buildRunOptions(options: {
   }
   if (options.obsidianVault) {
     runOptions.obsidianVault = options.obsidianVault;
+  }
+  if (options.notionBoard) {
+    runOptions.notionBoard = options.notionBoard;
+  }
+  if (options.notionTokenEnv) {
+    runOptions.notionTokenEnv = options.notionTokenEnv;
   }
   if (options.top) {
     runOptions.top = options.top;

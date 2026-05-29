@@ -9,6 +9,7 @@ const packageOrder = [
   "@workcue/output-markdown",
   "@workcue/connector-github",
   "@workcue/connector-jira",
+  "@workcue/connector-notion",
   "@workcue/connector-obsidian",
   "@workcue/llm",
   "@workcue/cache-sqlite",

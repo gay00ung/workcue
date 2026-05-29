@@ -46,6 +46,31 @@ export const WorkCueConfigSchema = z.object({
             .default({})
         })
         .default({}),
+      notion: z
+        .object({
+          enabled: z.boolean().default(false),
+          tokenEnv: z.string().default("NOTION_TOKEN"),
+          boards: z
+            .array(
+              z.object({
+                id: z.string().optional(),
+                url: z.string().optional(),
+                databaseId: z.string().optional(),
+                dataSourceId: z.string().optional(),
+                name: z.string().optional(),
+                titleProperty: z.string().optional(),
+                statusProperty: z.string().optional(),
+                dueProperty: z.string().optional(),
+                priorityProperty: z.string().optional(),
+                assigneeProperty: z.string().optional(),
+                projectProperty: z.string().optional(),
+                labelsProperty: z.string().optional(),
+                estimateProperty: z.string().optional()
+              })
+            )
+            .default([])
+        })
+        .default({}),
       obsidian: z
         .object({
           enabled: z.boolean().default(false),
