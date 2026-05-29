@@ -73,6 +73,7 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - Markdown morning brief renderer
 - Markdown file output
 - Obsidian daily note upsert
+- MCP stdio server with `workcue_today` and `workcue_doctor`
 - CLI command: `workcue today --demo`
 - CLI source option: `--obsidian-vault <path>`
 
@@ -149,5 +150,45 @@ sources:
     jql:
       - assignee = currentUser() AND statusCategory != Done
 ```
+
+## MCP Server
+
+WorkCue ships a local MCP server so Codex, Claude Desktop, Cursor, and other MCP clients can ask for the same morning brief without WorkCue becoming a new todo database.
+
+Available tools:
+
+- `workcue_today`: generates a brief from demo data, an Obsidian vault, or configured sources.
+- `workcue_doctor`: checks config readiness without fetching external work items.
+
+Run the stdio server locally:
+
+```bash
+pnpm mcp
+```
+
+Example MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "workcue": {
+      "command": "pnpm",
+      "args": ["--dir", "/path/to/workcue", "mcp"]
+    }
+  }
+}
+```
+
+Example tool arguments:
+
+```json
+{
+  "demo": true,
+  "date": "2026-05-29",
+  "top": 3
+}
+```
+
+Use `configPath` to point the MCP server at a local `.workcue/config.yml`. Credential values stay in environment variables such as `GITHUB_TOKEN`, `JIRA_EMAIL`, and `JIRA_API_TOKEN`; WorkCue config stores only their variable names.
 
 The project harness lives in `.codex/harnesses/workcue-engineering/`. Local paths belong in `.codex/local.env`, which is ignored by Git. Use `.codex/local.example.env` as the template.

@@ -8,6 +8,7 @@
     { "path": "./packages/connectors/obsidian" },
     { "path": "./packages/outputs/markdown" },
     { "path": "./packages/runtime" },
-    { "path": "./apps/cli" }
+    { "path": "./apps/cli" },
+    { "path": "./apps/mcp-server" }
   ]
 }
