@@ -9,7 +9,7 @@
   <img alt="Local first" src="https://img.shields.io/badge/local--first-yes-0f766e?style=flat">
   <img alt="MCP ready" src="https://img.shields.io/badge/MCP-ready-7c3aed?style=flat">
   <img alt="No telemetry" src="https://img.shields.io/badge/telemetry-none-111827?style=flat">
-  <img alt="Release alpha" src="https://img.shields.io/badge/release-v0.1.0--alpha.1-f59e0b?style=flat">
+  <img alt="Release alpha" src="https://img.shields.io/badge/release-v0.1.0--alpha.2-f59e0b?style=flat">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-3178c6?style=flat">
   <img alt="pnpm" src="https://img.shields.io/badge/pnpm-10.x-f69220?style=flat">
   <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ed?style=flat">
@@ -23,6 +23,30 @@
 업무 도구는 그대로, 오늘 할 일만 자동으로.
 
 WorkCue는 Jira, GitHub, Obsidian 같은 기존 업무 도구에 흩어진 일을 읽고, 오늘 집중해야 할 작업을 근거와 함께 추천하는 로컬 우선 morning planner입니다. 새로운 todo 앱이나 칸반 보드를 만들지 않습니다. 이미 쓰는 업무 시스템을 source of truth로 유지하고, 그 위에 아침 브리핑 레이어를 얹습니다.
+
+## 설치
+
+배포된 CLI package를 쓰려면 WorkCue source checkout 밖에서 npm을 사용합니다.
+
+```bash
+npm install -g workcue@alpha
+workcue today --demo
+```
+
+global install 없이 바로 실행할 수도 있습니다.
+
+```bash
+npx workcue@alpha today --demo
+```
+
+이 repository를 clone해서 개발할 때는 pnpm을 사용합니다.
+
+```bash
+pnpm install
+pnpm today --demo
+```
+
+이 source checkout 안에서는 `npm install workcue`를 실행하지 않습니다. 이 repository는 pnpm workspace를 사용하므로 npm과 pnpm이 관리하는 `node_modules`를 섞으면 npm arborist 오류가 날 수 있습니다.
 
 ## Demo
 
@@ -328,6 +352,7 @@ tool arguments 예시입니다.
 - [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)
 - [GitHub PR review radar recipe](docs/recipes/github-pr-review-radar.md)
 - [Notion kanban recipe](docs/recipes/notion-kanban.md)
+- [Troubleshooting](docs/troubleshooting.md)
 - [Changelog](CHANGELOG.md)
 
 프로젝트 하네스는 `.codex/harnesses/workcue-engineering/`에 있습니다. 로컬 경로는 Git에 올라가지 않는 `.codex/local.env`에만 둡니다. 공개 template은 `.codex/local.example.env`를 사용합니다.

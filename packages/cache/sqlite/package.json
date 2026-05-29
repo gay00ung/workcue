@@ -1,6 +1,6 @@
 {
   "name": "@workcue/cache-sqlite",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Local SQLite cache adapter for WorkCue sync results.",
   "type": "module",
   "private": false,

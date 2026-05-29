@@ -1,6 +1,6 @@
 {
   "name": "workcue",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Local-first morning brief CLI for work scattered across existing tools.",
   "type": "module",
   "private": false,

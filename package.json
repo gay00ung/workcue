@@ -1,11 +1,12 @@
 {
   "name": "workcue-repo",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.30.3",
   "scripts": {
     "build": "tsc -b",
+    "preinstall": "node scripts/ensure-pnpm.mjs",
     "clean": "node scripts/clean.mjs",
     "demo": "pnpm --filter workcue dev today --demo",
     "doctor": "pnpm --filter workcue dev doctor",
