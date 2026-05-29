@@ -1,0 +1,12 @@
+# Local Codex and WorkCue runtime state
+.codex/local.env
+_workspace/
+_workspace_*/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS/editor noise
+.DS_Store
