@@ -76,6 +76,13 @@ export function createInitialConfig(options: InitConfigOptions = {}): WorkCueCon
         enabled: true,
         path: ".workcue/workcue.sqlite"
       }
+    },
+    llm: {
+      enabled: false,
+      provider: "openai-compatible",
+      baseUrl: "http://localhost:11434",
+      model: "model-name",
+      apiKeyEnv: "OPENAI_API_KEY"
     }
   });
 }

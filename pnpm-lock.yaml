@@ -97,6 +97,12 @@ importers:
         specifier: ^3.25.0
         version: 3.25.76
 
+  packages/llm:
+    dependencies:
+      '@workcue/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/outputs/markdown: {}
 
   packages/runtime:
@@ -116,6 +122,9 @@ importers:
       '@workcue/core':
         specifier: workspace:*
         version: link:../core
+      '@workcue/llm':
+        specifier: workspace:*
+        version: link:../llm
       '@workcue/output-markdown':
         specifier: workspace:*
         version: link:../outputs/markdown

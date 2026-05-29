@@ -13,6 +13,7 @@
     "@workcue/connector-jira": "workspace:*",
     "@workcue/connector-obsidian": "workspace:*",
     "@workcue/core": "workspace:*",
+    "@workcue/llm": "workspace:*",
     "@workcue/output-markdown": "workspace:*"
   }
 }
