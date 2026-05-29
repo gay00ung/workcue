@@ -205,4 +205,11 @@ Example tool arguments:
 
 Use `configPath` to point the MCP server at a local `.workcue/config.yml`. Credential values stay in environment variables such as `GITHUB_TOKEN`, `JIRA_EMAIL`, and `JIRA_API_TOKEN`; WorkCue config stores only their variable names.
 
+More docs:
+
+- [Automation](docs/automation.md)
+- [MCP server](docs/mcp.md)
+- [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)
+- [GitHub PR review radar recipe](docs/recipes/github-pr-review-radar.md)
+
 The project harness lives in `.codex/harnesses/workcue-engineering/`. Local paths belong in `.codex/local.env`, which is ignored by Git. Use `.codex/local.example.env` as the template.
