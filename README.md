@@ -190,6 +190,17 @@ scoring:
     waiting_external: 0.7
 ```
 
+LLM summaries are disabled by default. To enable an OpenAI-compatible endpoint or Ollama, configure `llm.enabled` and keep API key values in environment variables:
+
+```yaml
+llm:
+  enabled: true
+  provider: openai-compatible
+  baseUrl: https://api.openai.com
+  model: model-name
+  apiKeyEnv: OPENAI_API_KEY
+```
+
 ## MCP Server
 
 WorkCue ships a local MCP server so Codex, Claude Desktop, Cursor, and other MCP clients can ask for the same morning brief without WorkCue becoming a new todo database.
@@ -237,6 +248,7 @@ More docs:
 - [Automation](docs/automation.md)
 - [Local cache](docs/cache.md)
 - [Docker](docs/docker.md)
+- [LLM summaries](docs/llm.md)
 - [MCP server](docs/mcp.md)
 - [Scoring](docs/scoring.md)
 - [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)

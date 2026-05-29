@@ -91,6 +91,7 @@ program
     lines.push(config.outputs.markdown.enabled ? "Markdown output: enabled" : "Markdown output: disabled");
     lines.push(config.outputs.dailyNote.enabled ? "Daily note output: enabled" : "Daily note output: disabled");
     lines.push(config.cache.sqlite.enabled ? `SQLite cache: enabled ${config.cache.sqlite.path}` : "SQLite cache: disabled");
+    lines.push(config.llm.enabled ? `LLM summary: enabled ${config.llm.provider}` : "LLM summary: disabled");
 
     process.stdout.write(`${lines.join("\n")}\n`);
   });
