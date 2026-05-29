@@ -7,6 +7,7 @@
     { "path": "./packages/connectors/github" },
     { "path": "./packages/connectors/jira" },
     { "path": "./packages/connectors/obsidian" },
+    { "path": "./packages/llm" },
     { "path": "./packages/outputs/markdown" },
     { "path": "./packages/runtime" },
     { "path": "./apps/cli" },

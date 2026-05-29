@@ -11,6 +11,7 @@ import {
   type Recommendation,
   type WorkItem
 } from "@workcue/core";
+import { generateBriefSummary } from "@workcue/llm";
 import { upsertDailyNoteSection, writeMarkdownFile } from "@workcue/output-markdown";
 
 export type WorkCueRuntimeErrorCode = "ITEM_NOT_FOUND" | "NO_ITEMS_FOUND" | "NO_SOURCES_CONFIGURED";
@@ -76,7 +77,13 @@ export interface WorkCueWrittenOutputs {
 export async function runWorkCueToday(options: RunWorkCueTodayOptions): Promise<WorkCueTodayResult> {
   const syncResult = await syncWorkCueSources(options);
   const briefOptions = buildBriefOptions(options, syncResult.config, syncResult.userHandles);
-  const brief = createBrief(syncResult.items, briefOptions);
+  let brief = createBrief(syncResult.items, briefOptions);
+  if (shouldUseLlmSummary(syncResult.config)) {
+    brief = {
+      ...brief,
+      summary: await generateBriefSummary(buildLlmSummaryOptions(syncResult.config, brief, options.env ?? process.env))
+    };
+  }
 
   const result: WorkCueTodayResult = {
     brief,
@@ -225,6 +232,28 @@ function buildBriefOptions(
     briefOptions.topFocusItems = topFocusItems;
   }
   return briefOptions;
+}
+
+function shouldUseLlmSummary(config: WorkCueConfig | undefined): config is WorkCueConfig {
+  return Boolean(config?.llm.enabled && config.llm.baseUrl && config.llm.model);
+}
+
+function buildLlmSummaryOptions(
+  config: WorkCueConfig,
+  brief: Brief,
+  env: NodeJS.ProcessEnv
+): Parameters<typeof generateBriefSummary>[0] {
+  const options: Parameters<typeof generateBriefSummary>[0] = {
+    baseUrl: config.llm.baseUrl,
+    brief,
+    model: config.llm.model,
+    provider: config.llm.provider
+  };
+  const apiKey = env[config.llm.apiKeyEnv];
+  if (apiKey) {
+    options.apiKey = apiKey;
+  }
+  return options;
 }
 
 function shouldUseObsidian(

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const LlmProviderSchema = z.enum(["openai-compatible", "ollama"]);
+
 export const WorkCueConfigSchema = z.object({
   version: z.literal(1),
   timezone: z.string().default("UTC"),
@@ -79,7 +81,17 @@ export const WorkCueConfigSchema = z.object({
         })
         .default({})
     })
+    .default({}),
+  llm: z
+    .object({
+      enabled: z.boolean().default(false),
+      provider: LlmProviderSchema.default("openai-compatible"),
+      baseUrl: z.string().default("http://localhost:11434"),
+      model: z.string().default("model-name"),
+      apiKeyEnv: z.string().default("OPENAI_API_KEY")
+    })
     .default({})
 });
 
 export type WorkCueConfig = z.infer<typeof WorkCueConfigSchema>;
+export type LlmProvider = z.infer<typeof LlmProviderSchema>;

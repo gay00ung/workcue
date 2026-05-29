@@ -12,6 +12,7 @@
     { "path": "../connectors/jira" },
     { "path": "../connectors/obsidian" },
     { "path": "../core" },
+    { "path": "../llm" },
     { "path": "../outputs/markdown" }
   ]
 }
