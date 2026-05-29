@@ -6,7 +6,7 @@
   "packageManager": "pnpm@10.30.3",
   "scripts": {
     "start": "pnpm --filter workcue start",
-    "demo": "pnpm --filter workcue start today --demo",
+    "demo": "tsx apps/cli/src/index.ts today --demo",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest"
