@@ -86,6 +86,7 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - Markdown file output
 - Obsidian daily note upsert
 - MCP stdio server with `workcue_sync`, `workcue_today`, `workcue_explain`, and `workcue_doctor`
+- Dockerfile for local container runs
 - CLI commands: `workcue sync`, `workcue explain`, `workcue today --demo`
 - CLI source option: `--obsidian-vault <path>`
 
@@ -208,6 +209,7 @@ Use `configPath` to point the MCP server at a local `.workcue/config.yml`. Crede
 More docs:
 
 - [Automation](docs/automation.md)
+- [Docker](docs/docker.md)
 - [MCP server](docs/mcp.md)
 - [Obsidian daily note recipe](docs/recipes/obsidian-daily-note.md)
 - [GitHub PR review radar recipe](docs/recipes/github-pr-review-radar.md)
