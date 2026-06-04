@@ -78,6 +78,18 @@ pnpm today --notion-board "https://www.notion.so/workspace/Tasks-0123456789abcde
 
 WorkCue reads Notion row properties such as title, status, due date, priority, assignee, project, labels, and estimate. It does not read page body content in this preview.
 
+To add project repository context to any source:
+
+```bash
+pnpm today \
+  --notion-board "https://www.notion.so/workspace/Tasks-0123456789abcdef0123456789abcdef" \
+  --project-path /path/to/project \
+  --project-remote https://github.com/example/project \
+  --date 2026-05-29
+```
+
+Project context is read-only. WorkCue looks at git branch, dirty files, recent commit subjects, common manifests, docs, and TODO/FIXME markers, then attaches a short evidence summary to matching work items. Local absolute paths are not included in the brief or sync JSON.
+
 To inspect normalized source items without generating a brief:
 
 ```bash
@@ -142,6 +154,7 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - GitHub Issues and PR connector package
 - Jira issue connector package
 - Notion kanban database/data source connector preview
+- Project repository context analyzer for local git repos
 - Markdown morning brief renderer
 - Markdown file output
 - Obsidian daily note upsert
@@ -149,7 +162,7 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - Local SQLite cache for sync results
 - Dockerfile for local container runs
 - CLI commands: `workcue sync`, `workcue explain`, `workcue today --demo`
-- CLI source options: `--obsidian-vault <path>`, `--notion-board <url-or-id>`
+- CLI source options: `--obsidian-vault <path>`, `--notion-board <url-or-id>`, `--project-path <path>`, `--project-remote <url>`
 
 ## Product Principles
 
@@ -212,6 +225,17 @@ The Notion token value stays in the environment:
 ```bash
 export NOTION_TOKEN="secret_..."
 ```
+
+Add project repository context:
+
+```bash
+pnpm --filter workcue dev init \
+  --output .workcue/config.yml \
+  --project-path /path/to/project \
+  --project-remote https://github.com/example/project
+```
+
+Do not commit `.workcue/config.yml` when it contains private board URLs, repository paths, or private remote URLs.
 
 Check the config:
 

@@ -15,6 +15,7 @@ import {
   explainWorkCueItem,
   renderRecommendationExplanation,
   runWorkCueToday,
+  serializeProjectContext,
   syncWorkCueSources,
   writeWorkCueOutputs,
   type RunWorkCueTodayOptions
@@ -33,6 +34,8 @@ program
   .option("--output <path>", "Config path to write.", defaultConfigPath())
   .option("--obsidian-vault <path>", "Local Obsidian vault path to enable.")
   .option("--notion-board <url-or-id>", "Notion kanban database or data source URL/ID to enable.")
+  .option("--project-path <path>", "Local project repository path to use as recommendation context.")
+  .option("--project-remote <url>", "Project remote URL to match GitHub/Notion/Jira work items.")
   .option("--markdown-output <path>", "Markdown output path. Supports {{date}}.")
   .option("--daily-note <path>", "Daily note output path. Supports {{date}}.")
   .action(
@@ -40,6 +43,8 @@ program
       output: string;
       obsidianVault?: string;
       notionBoard?: string;
+      projectPath?: string;
+      projectRemote?: string;
       markdownOutput?: string;
       dailyNote?: string;
     }) => {
@@ -49,6 +54,12 @@ program
       }
       if (options.notionBoard) {
         initOptions.notionBoard = options.notionBoard;
+      }
+      if (options.projectPath) {
+        initOptions.projectPath = options.projectPath;
+      }
+      if (options.projectRemote) {
+        initOptions.projectRemote = options.projectRemote;
       }
       if (options.markdownOutput) {
         initOptions.markdownOutput = options.markdownOutput;
@@ -111,6 +122,10 @@ program
       lines.push("Notion: disabled");
     }
 
+    lines.push(
+      config.projects.length > 0 ? `Project context: configured ${config.projects.length} project(s)` : "Project context: disabled"
+    );
+
     lines.push(config.outputs.markdown.enabled ? "Markdown output: enabled" : "Markdown output: disabled");
     lines.push(config.outputs.dailyNote.enabled ? "Daily note output: enabled" : "Daily note output: disabled");
     lines.push(config.cache.sqlite.enabled ? `SQLite cache: enabled ${config.cache.sqlite.path}` : "SQLite cache: disabled");
@@ -127,6 +142,8 @@ program
   .option("--obsidian-vault <path>", "Read unchecked markdown tasks from a local Obsidian vault.")
   .option("--notion-board <url-or-id>", "Read cards from a Notion kanban database or data source.")
   .option("--notion-token-env <name>", "Environment variable name that stores the Notion integration token.", "NOTION_TOKEN")
+  .option("--project-path <path>", "Local project repository path to use as recommendation context.")
+  .option("--project-remote <url>", "Project remote URL to match GitHub/Notion/Jira work items.")
   .option("--assignee <handle>", "Assignee handle to attach to local tasks.", "you")
   .option("--date <date>", "Sync date in YYYY-MM-DD format.", todayDate())
   .option("--json", "Print a JSON payload.")
@@ -144,6 +161,8 @@ program
       notionTokenEnv?: string;
       obsidianVault?: string;
       output?: string;
+      projectPath?: string;
+      projectRemote?: string;
     }) => {
       const result = await syncWorkCueSources(buildRunOptions(options));
       const payload = buildSyncPayload(result);
@@ -179,6 +198,8 @@ program
   .option("--obsidian-vault <path>", "Read unchecked markdown tasks from a local Obsidian vault.")
   .option("--notion-board <url-or-id>", "Read cards from a Notion kanban database or data source.")
   .option("--notion-token-env <name>", "Environment variable name that stores the Notion integration token.", "NOTION_TOKEN")
+  .option("--project-path <path>", "Local project repository path to use as recommendation context.")
+  .option("--project-remote <url>", "Project remote URL to match GitHub/Notion/Jira work items.")
   .option("--output <path>", "Write the generated brief to a markdown file.")
   .option("--daily-note <path>", "Upsert the generated brief into a markdown daily note.")
   .option("--assignee <handle>", "Assignee handle to attach to local tasks.", "you")
@@ -193,6 +214,8 @@ program
       obsidianVault?: string;
       output?: string;
       dailyNote?: string;
+      projectPath?: string;
+      projectRemote?: string;
       assignee: string;
       date: string;
       top: number;
@@ -226,6 +249,8 @@ program
   .option("--obsidian-vault <path>", "Read unchecked markdown tasks from a local Obsidian vault.")
   .option("--notion-board <url-or-id>", "Read cards from a Notion kanban database or data source.")
   .option("--notion-token-env <name>", "Environment variable name that stores the Notion integration token.", "NOTION_TOKEN")
+  .option("--project-path <path>", "Local project repository path to use as recommendation context.")
+  .option("--project-remote <url>", "Project remote URL to match GitHub/Notion/Jira work items.")
   .option("--assignee <handle>", "Assignee handle to attach to local tasks.", "you")
   .option("--date <date>", "Brief date in YYYY-MM-DD format.", todayDate())
   .option("--json", "Print a JSON explanation payload.")
@@ -241,6 +266,8 @@ program
         notionBoard?: string;
         notionTokenEnv?: string;
         obsidianVault?: string;
+        projectPath?: string;
+        projectRemote?: string;
       }
     ) => {
       const recommendation = await explainWorkCueItem({
@@ -285,6 +312,8 @@ function buildRunOptions(options: {
   notionBoard?: string;
   notionTokenEnv?: string;
   obsidianVault?: string;
+  projectPath?: string;
+  projectRemote?: string;
   top?: number;
 }): RunWorkCueTodayOptions {
   const runOptions: RunWorkCueTodayOptions = {
@@ -306,6 +335,12 @@ function buildRunOptions(options: {
   if (options.notionTokenEnv) {
     runOptions.notionTokenEnv = options.notionTokenEnv;
   }
+  if (options.projectPath) {
+    runOptions.projectPath = options.projectPath;
+  }
+  if (options.projectRemote) {
+    runOptions.projectRemote = options.projectRemote;
+  }
   if (options.top) {
     runOptions.top = options.top;
   }
@@ -317,6 +352,7 @@ function buildSyncPayload(result: Awaited<ReturnType<typeof syncWorkCueSources>>
     syncedAt: result.syncedAt,
     itemCount: result.items.length,
     sourceCounts: result.sourceCounts,
+    projectContexts: result.projectContexts.map(serializeProjectContext),
     items: result.items.map(serializeWorkItem)
   };
 }
@@ -399,6 +435,20 @@ function serializeWorkItem(item: Awaited<ReturnType<typeof syncWorkCueSources>>[
   }
   if (item.estimateMinutes) {
     payload.estimateMinutes = item.estimateMinutes;
+  }
+  if (item.projectContexts && item.projectContexts.length > 0) {
+    payload.projectContexts = item.projectContexts.map((context) => ({
+      projectId: context.projectId,
+      ...(context.projectName ? { projectName: context.projectName } : {}),
+      ...(context.repoName ? { repoName: context.repoName } : {}),
+      ...(context.currentBranch ? { currentBranch: context.currentBranch } : {}),
+      ...(typeof context.isDirty === "boolean" ? { isDirty: context.isDirty } : {}),
+      signals: context.signals,
+      matchedTerms: context.matchedTerms.slice(0, 8),
+      matchedFiles: context.matchedFiles.slice(0, 8),
+      ...(typeof context.changedFileCount === "number" ? { changedFileCount: context.changedFileCount } : {}),
+      ...(typeof context.todoCount === "number" ? { todoCount: context.todoCount } : {})
+    }));
   }
 
   return payload;

@@ -5,6 +5,7 @@ import {
   explainWorkCueItem,
   renderRecommendationExplanation,
   runWorkCueToday,
+  serializeProjectContext,
   syncWorkCueSources,
   writeWorkCueOutputs,
   type RunWorkCueTodayOptions
@@ -19,6 +20,8 @@ const SourceToolArgsSchema = z.object({
   notionBoard: z.string().optional().describe("Notion kanban database or data source URL/ID to read cards from."),
   notionTokenEnv: z.string().optional().describe("Environment variable name that stores the Notion integration token."),
   obsidianVault: z.string().optional().describe("Local Obsidian vault path to read unchecked markdown tasks from."),
+  projectPath: z.string().optional().describe("Local project repository path to use as recommendation context."),
+  projectRemote: z.string().optional().describe("Project remote URL to match GitHub/Notion/Jira work items."),
   top: z.number().int().positive().optional().describe("Number of focus items to return.")
 });
 
@@ -132,6 +135,7 @@ export async function runTodayTool(args: TodayToolArgs): Promise<string> {
     "",
     `- Items read: ${result.items.length}`,
     `- Source counts: ${formatSourceCounts(result.sourceCounts)}`,
+    `- Project contexts: ${result.projectContexts.length}`,
     `- Outputs written: ${outputsWritten}`
   ].join("\n");
 }
@@ -206,6 +210,8 @@ function buildRunOptions(
     notionBoard?: string | undefined;
     notionTokenEnv?: string | undefined;
     obsidianVault?: string | undefined;
+    projectPath?: string | undefined;
+    projectRemote?: string | undefined;
     top?: number | undefined;
   },
   date: string
@@ -226,6 +232,12 @@ function buildRunOptions(
   if (args.notionTokenEnv) {
     runOptions.notionTokenEnv = args.notionTokenEnv;
   }
+  if (args.projectPath) {
+    runOptions.projectPath = args.projectPath;
+  }
+  if (args.projectRemote) {
+    runOptions.projectRemote = args.projectRemote;
+  }
   if (args.top) {
     runOptions.top = args.top;
   }
@@ -240,6 +252,7 @@ function buildSyncPayload(result: Awaited<ReturnType<typeof syncWorkCueSources>>
     syncedAt: result.syncedAt,
     itemCount: result.items.length,
     sourceCounts: result.sourceCounts,
+    projectContexts: result.projectContexts.map(serializeProjectContext),
     items: result.items.map(serializeWorkItem)
   };
 }
@@ -278,6 +291,20 @@ function serializeWorkItem(item: Awaited<ReturnType<typeof syncWorkCueSources>>[
   }
   if (item.estimateMinutes) {
     payload.estimateMinutes = item.estimateMinutes;
+  }
+  if (item.projectContexts && item.projectContexts.length > 0) {
+    payload.projectContexts = item.projectContexts.map((context) => ({
+      projectId: context.projectId,
+      ...(context.projectName ? { projectName: context.projectName } : {}),
+      ...(context.repoName ? { repoName: context.repoName } : {}),
+      ...(context.currentBranch ? { currentBranch: context.currentBranch } : {}),
+      ...(typeof context.isDirty === "boolean" ? { isDirty: context.isDirty } : {}),
+      signals: context.signals,
+      matchedTerms: context.matchedTerms.slice(0, 8),
+      matchedFiles: context.matchedFiles.slice(0, 8),
+      ...(typeof context.changedFileCount === "number" ? { changedFileCount: context.changedFileCount } : {}),
+      ...(typeof context.todoCount === "number" ? { todoCount: context.todoCount } : {})
+    }));
   }
 
   return payload;

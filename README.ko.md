@@ -78,6 +78,18 @@ pnpm today --notion-board "https://www.notion.so/workspace/Tasks-0123456789abcde
 
 WorkCue는 Notion row의 title, status, due date, priority, assignee, project, labels, estimate 같은 속성을 읽습니다. 이 preview에서는 page body 내용 전체를 읽지 않습니다.
 
+업무 source에 실제 프로젝트 레포 맥락을 함께 붙이려면:
+
+```bash
+pnpm today \
+  --notion-board "https://www.notion.so/workspace/Tasks-0123456789abcdef0123456789abcdef" \
+  --project-path /path/to/project \
+  --project-remote https://github.com/example/project \
+  --date 2026-05-29
+```
+
+Project context는 read-only로 동작합니다. WorkCue는 git branch, 변경 중인 파일, 최근 commit 제목, 주요 manifest, docs, TODO/FIXME marker를 읽고, 연결되는 업무 항목에 짧은 evidence summary만 붙입니다. 로컬 절대경로는 brief나 sync JSON에 포함하지 않습니다.
+
 brief를 만들기 전에 정규화된 source item만 확인하려면:
 
 ```bash
@@ -142,6 +154,7 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - GitHub Issues/PR connector
 - Jira issue connector
 - Notion kanban database/data source connector preview
+- 로컬 git repo용 project context analyzer
 - Markdown morning brief renderer
 - Markdown file output
 - Obsidian daily note upsert
@@ -149,7 +162,7 @@ Top recommendation: Review PR #184: Fix payment retry race condition
 - sync 결과용 로컬 SQLite cache
 - 로컬 container 실행용 Dockerfile
 - CLI commands: `workcue sync`, `workcue explain`, `workcue today --demo`
-- CLI source options: `--obsidian-vault <path>`, `--notion-board <url-or-id>`
+- CLI source options: `--obsidian-vault <path>`, `--notion-board <url-or-id>`, `--project-path <path>`, `--project-remote <url>`
 
 ## 제품 원칙
 
@@ -212,6 +225,17 @@ Notion token 값은 config에 저장하지 않고 환경변수에 둡니다.
 ```bash
 export NOTION_TOKEN="secret_..."
 ```
+
+프로젝트 레포 맥락을 config에 추가할 수도 있습니다.
+
+```bash
+pnpm --filter workcue dev init \
+  --output .workcue/config.yml \
+  --project-path /path/to/project \
+  --project-remote https://github.com/example/project
+```
+
+`.workcue/config.yml`에 private board URL, repository path, private remote URL이 들어 있다면 커밋하지 않는 것이 안전합니다.
 
 config를 점검합니다.
 

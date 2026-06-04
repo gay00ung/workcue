@@ -15,6 +15,7 @@ describe("config", () => {
     expect(config.sources.notion.enabled).toBe(false);
     expect(config.sources.notion.tokenEnv).toBe("NOTION_TOKEN");
     expect(config.sources.notion.boards).toEqual([]);
+    expect(config.projects).toEqual([]);
     expect(config.cache.sqlite.enabled).toBe(true);
     expect(config.cache.sqlite.path).toBe(".workcue/workcue.sqlite");
     expect(config.scoring.signalWeights).toEqual({});
@@ -42,6 +43,29 @@ describe("config", () => {
         }
       ]
     });
+  });
+
+  it("creates a project context config when requested", () => {
+    const config = createInitialConfig({
+      projectPath: "/path/to/project",
+      projectRemote: "https://github.com/example/project"
+    });
+
+    expect(config.projects).toEqual([
+      {
+        id: "default",
+        name: "Default project",
+        repo: {
+          localPath: "/path/to/project",
+          remoteUrl: "https://github.com/example/project"
+        },
+        match: {
+          keywords: [],
+          labels: [],
+          sourceUrls: []
+        }
+      }
+    ]);
   });
 
   it("writes and loads config files", async () => {

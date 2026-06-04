@@ -72,6 +72,18 @@ One-off Notion board:
 }
 ```
 
+Notion board with local project context:
+
+```json
+{
+  "notionBoard": "https://www.notion.so/workspace/Tasks-0123456789abcdef0123456789abcdef",
+  "notionTokenEnv": "NOTION_TOKEN",
+  "projectPath": "/path/to/project",
+  "projectRemote": "https://github.com/example/project",
+  "date": "2026-05-29"
+}
+```
+
 Explain one item:
 
 ```json
@@ -84,4 +96,4 @@ Explain one item:
 
 ## Data Exposure
 
-`workcue_sync` returns normalized item summaries and excludes connector `raw` payloads. Avoid sending generated briefs or sync JSON to shared channels if your source tools contain sensitive work.
+`workcue_sync` returns normalized item summaries and excludes connector `raw` payloads. Project context summaries do not include local absolute paths, but they can include repository names, branch names, relative file names, and recent commit subjects. Avoid sending generated briefs or sync JSON to shared channels if your source tools contain sensitive work.

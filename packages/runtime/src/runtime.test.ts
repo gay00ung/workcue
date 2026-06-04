@@ -1,6 +1,8 @@
-import { mkdtemp, readFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import {
   explainWorkCueItem,
@@ -10,6 +12,8 @@ import {
   WorkCueRuntimeError,
   writeWorkCueOutputs
 } from "./index.js";
+
+const execFileAsync = promisify(execFile);
 
 describe("runWorkCueToday", () => {
   it("creates a deterministic demo brief", async () => {
@@ -35,6 +39,29 @@ describe("syncWorkCueSources", () => {
     expect(result.items.map((item) => item.id)).toContain("github:pr-184");
     expect(result.sourceCounts.github).toBe(2);
     expect(result.syncedAt).toMatch(/T/);
+  });
+
+  it("enriches work items with local project context without exposing local paths", async () => {
+    const repoPath = await createFixtureGitRepo();
+    const result = await syncWorkCueSources({
+      date: "2026-05-29",
+      demo: true,
+      projectPath: repoPath
+    });
+    const item = result.items.find((candidate) => candidate.id === "github:pr-184");
+
+    expect(result.projectContexts).toHaveLength(1);
+    expect(result.projectContexts[0]?.repoName).toBe("app");
+    expect(item?.projectContexts?.[0]).toMatchObject({
+      projectId: "cli-project",
+      repoName: "app",
+      currentBranch: "feature/auth-cleanup",
+      isDirty: true
+    });
+    expect(item?.projectContexts?.[0]?.signals).toEqual(
+      expect.arrayContaining(["active_branch", "dirty_worktree", "source_url"])
+    );
+    expect(JSON.stringify(result)).not.toContain(repoPath);
   });
 });
 
@@ -68,3 +95,22 @@ describe("writeWorkCueOutputs", () => {
     expect(written.markdownPath).toBe(outputPath);
   });
 });
+
+async function createFixtureGitRepo(): Promise<string> {
+  const repoPath = await mkdtemp(path.join(os.tmpdir(), "workcue-project-"));
+  await mkdir(path.join(repoPath, "src"));
+  await writeFile(path.join(repoPath, "package.json"), '{"name":"app","scripts":{"test":"vitest run"}}\n', "utf8");
+  await writeFile(path.join(repoPath, "README.md"), "# App\n", "utf8");
+  await writeFile(path.join(repoPath, "src", "auth.ts"), "export const auth = true;\n", "utf8");
+  await runGit(repoPath, ["init"]);
+  await runGit(repoPath, ["remote", "add", "origin", "https://github.com/acme/app.git"]);
+  await runGit(repoPath, ["add", "."]);
+  await runGit(repoPath, ["-c", "user.name=WorkCue", "-c", "user.email=workcue@example.com", "commit", "-m", "feat: auth baseline"]);
+  await runGit(repoPath, ["checkout", "-b", "feature/auth-cleanup"]);
+  await writeFile(path.join(repoPath, "src", "auth.ts"), "export const auth = true;\n// TODO: review PR #184 retry path\n", "utf8");
+  return repoPath;
+}
+
+async function runGit(cwd: string, args: string[]): Promise<void> {
+  await execFileAsync("git", ["-C", cwd, ...args]);
+}

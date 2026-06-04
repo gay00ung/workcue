@@ -55,6 +55,20 @@ pnpm doctor --config .workcue/config.yml
 pnpm today --config .workcue/config.yml --date 2026-05-29
 ```
 
+## Add Repository Context
+
+If the Notion board tracks work for a specific repository, add project context so WorkCue can consider the real codebase state:
+
+```bash
+pnpm today \
+  --notion-board "https://www.notion.so/workspace/Tasks-0123456789abcdef0123456789abcdef" \
+  --project-path /path/to/project \
+  --project-remote https://github.com/example/project \
+  --date 2026-05-29
+```
+
+See [Project Context](./project-context.md) for the reusable config format.
+
 ## Property Mapping
 
 If your board uses different property names, edit `.workcue/config.yml`:

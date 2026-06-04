@@ -14,6 +14,13 @@ import {
 } from "@workcue/core";
 import { generateBriefSummary } from "@workcue/llm";
 import { upsertDailyNoteSection, writeMarkdownFile } from "@workcue/output-markdown";
+import {
+  collectProjectContexts,
+  enrichWorkItemsWithProjectContexts,
+  serializeProjectContextSummary,
+  type ProjectConfig,
+  type ProjectContextSummary
+} from "./project-context.js";
 
 export type WorkCueRuntimeErrorCode = "ITEM_NOT_FOUND" | "NO_ITEMS_FOUND" | "NO_SOURCES_CONFIGURED";
 export type WorkCueSourceCounts = Record<string, number>;
@@ -38,6 +45,8 @@ export interface RunWorkCueTodayOptions {
   notionBoard?: string;
   notionTokenEnv?: string;
   obsidianVault?: string;
+  projectPath?: string;
+  projectRemote?: string;
   timezone?: string;
   top?: number;
 }
@@ -50,6 +59,7 @@ export type ExplainWorkCueItemOptions = RunWorkCueTodayOptions & {
 export interface WorkCueSyncResult {
   config?: WorkCueConfig;
   items: WorkItem[];
+  projectContexts: ProjectContextSummary[];
   sourceCounts: WorkCueSourceCounts;
   syncedAt: string;
   userHandles: string[];
@@ -60,6 +70,7 @@ export interface WorkCueTodayResult {
   config?: WorkCueConfig;
   items: WorkItem[];
   markdown: string;
+  projectContexts: ProjectContextSummary[];
   sourceCounts: WorkCueSourceCounts;
   userHandles: string[];
 }
@@ -92,6 +103,7 @@ export async function runWorkCueToday(options: RunWorkCueTodayOptions): Promise<
     brief,
     items: syncResult.items,
     markdown: renderBriefMarkdown(brief),
+    projectContexts: syncResult.projectContexts,
     sourceCounts: syncResult.sourceCounts,
     userHandles: syncResult.userHandles
   };
@@ -105,8 +117,9 @@ export async function syncWorkCueSources(options: SyncWorkCueSourcesOptions): Pr
   const config = options.config ?? (options.configPath ? await loadConfig(options.configPath) : undefined);
   const obsidianVault = options.obsidianVault ?? config?.sources.obsidian.vaultPath;
   const notionBoards = buildRuntimeNotionBoards(options, config);
+  const runtimeProjects = buildRuntimeProjects(options, config);
   const userHandles = buildUserHandles(options.assignee ?? "you", config);
-  const items: WorkItem[] = [];
+  let items: WorkItem[] = [];
 
   if (options.demo) {
     items.push(...buildDemoWorkItems(options.date));
@@ -139,8 +152,15 @@ export async function syncWorkCueSources(options: SyncWorkCueSourcesOptions): Pr
     throw new WorkCueRuntimeError("NO_ITEMS_FOUND", "No open work items found.");
   }
 
+  const projectContexts =
+    runtimeProjects.length > 0 ? await collectProjectContexts({ projects: runtimeProjects }) : [];
+  if (projectContexts.length > 0) {
+    items = enrichWorkItemsWithProjectContexts(items, projectContexts);
+  }
+
   const result: WorkCueSyncResult = {
     items,
+    projectContexts,
     sourceCounts: countSources(items),
     syncedAt: new Date().toISOString(),
     userHandles
@@ -199,7 +219,16 @@ export function renderRecommendationExplanation(recommendation: Recommendation):
     recommendation.suggestedAction
   ];
 
+  const projectContextLines = renderProjectContextExplanation(recommendation.workItem.projectContexts);
+  if (projectContextLines.length > 0) {
+    lines.push("", "## Project context", "", ...projectContextLines);
+  }
+
   return `${lines.join("\n").trim()}\n`;
+}
+
+export function serializeProjectContext(context: ProjectContextSummary): Record<string, unknown> {
+  return serializeProjectContextSummary(context);
 }
 
 export async function writeWorkCueOutputs(options: WriteWorkCueOutputsOptions): Promise<WorkCueWrittenOutputs> {
@@ -293,6 +322,33 @@ function buildObsidianSyncOptions(
     options.assignee = userHandles[0];
   }
   return options;
+}
+
+function buildRuntimeProjects(
+  options: Pick<RunWorkCueTodayOptions, "projectPath" | "projectRemote">,
+  config: WorkCueConfig | undefined
+): ProjectConfig[] {
+  const projects = [...(config?.projects ?? [])];
+  if (options.projectPath || options.projectRemote) {
+    const project: ProjectConfig = {
+      id: "cli-project",
+      name: "CLI project",
+      repo: {},
+      match: {
+        keywords: [],
+        labels: [],
+        sourceUrls: []
+      }
+    };
+    if (options.projectPath) {
+      project.repo.localPath = options.projectPath;
+    }
+    if (options.projectRemote) {
+      project.repo.remoteUrl = options.projectRemote;
+    }
+    projects.push(project);
+  }
+  return projects;
 }
 
 function shouldUseGitHub(config: WorkCueConfig | undefined): config is WorkCueConfig {
@@ -420,4 +476,19 @@ function countSources(items: WorkItem[]): WorkCueSourceCounts {
     counts[item.source] = (counts[item.source] ?? 0) + 1;
     return counts;
   }, {});
+}
+
+function renderProjectContextExplanation(
+  contexts: WorkItem["projectContexts"] | undefined
+): string[] {
+  if (!contexts || contexts.length === 0) {
+    return [];
+  }
+  return contexts.map((context) => {
+    const repo = context.repoName ?? context.projectName ?? context.projectId;
+    const branch = context.currentBranch ? `, branch ${context.currentBranch}` : "";
+    const dirty = context.isDirty ? ", dirty worktree" : "";
+    const files = context.matchedFiles.length > 0 ? `, matched files ${context.matchedFiles.slice(0, 3).join(", ")}` : "";
+    return `- ${repo}${branch}${dirty}${files}`;
+  });
 }

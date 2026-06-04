@@ -18,6 +18,7 @@ Examples:
 - `waiting_external`
 - `quick_win`
 - `deep_work`
+- `project_context`
 
 Each signal has a default weight in `@workcue/core`. The final item score is the sum of the signal weights.
 
@@ -44,3 +45,16 @@ pnpm --filter workcue start explain github:pr-184 --demo --date 2026-05-29
 ```
 
 When a multiplier changes a signal, the signal evidence includes the default weight and multiplier.
+
+## Project Context Signal
+
+`project_context` is added when a work item matches a configured project repository.
+
+Examples:
+
+- source URL points to the same GitHub repository
+- current branch contains a matching issue key or task keyword
+- dirty files or TODO markers appear in a matching repository
+- recent commit subjects mention a matching issue key or task keyword
+
+This signal is intentionally bounded. A simple repo URL match is a weak signal, while active branch, dirty worktree, or recent commit evidence is stronger.

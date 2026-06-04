@@ -81,4 +81,50 @@ describe("demo brief", () => {
       ])
     );
   });
+
+  it("adds project context evidence when a work item matches a repo", () => {
+    const [recommendation] = rankWorkItems(
+      [
+        {
+          id: "notion:task-1",
+          source: "notion",
+          sourceId: "task-1",
+          title: "Finish auth cleanup",
+          status: "todo",
+          assignees: ["you"],
+          labels: ["auth"],
+          projectContexts: [
+            {
+              projectId: "app",
+              repoName: "app",
+              currentBranch: "feature/auth-cleanup",
+              isDirty: true,
+              signals: ["active_branch", "dirty_worktree"],
+              matchedTerms: ["auth"],
+              matchedFiles: ["src/auth.ts"],
+              recentCommitSubjects: ["feat: auth cleanup"],
+              manifestFiles: ["package.json"],
+              docFiles: ["README.md"],
+              todoFiles: [],
+              todoCount: 0
+            }
+          ]
+        }
+      ],
+      {
+        date: "2026-05-29",
+        userHandles: ["you"]
+      }
+    );
+
+    expect(recommendation?.reasons).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "project_context",
+          weight: 55,
+          message: "app 프로젝트 레포 맥락과 연결된 작업입니다. 현재 branch: feature/auth-cleanup. 변경 중인 파일이 있습니다."
+        })
+      ])
+    );
+  });
 });
