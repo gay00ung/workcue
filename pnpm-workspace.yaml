@@ -4,3 +4,5 @@ packages:
   - "packages/cache/*"
   - "packages/connectors/*"
   - "packages/outputs/*"
+allowBuilds:
+  esbuild: true

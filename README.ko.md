@@ -9,9 +9,9 @@
   <img alt="Local first" src="https://img.shields.io/badge/local--first-yes-0f766e?style=flat">
   <img alt="MCP ready" src="https://img.shields.io/badge/MCP-ready-7c3aed?style=flat">
   <img alt="No telemetry" src="https://img.shields.io/badge/telemetry-none-111827?style=flat">
-  <img alt="Release alpha" src="https://img.shields.io/badge/release-v0.1.0--alpha.2-f59e0b?style=flat">
+  <img alt="Release alpha" src="https://img.shields.io/badge/release-v0.1.0--alpha.3-f59e0b?style=flat">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-3178c6?style=flat">
-  <img alt="pnpm" src="https://img.shields.io/badge/pnpm-10.x-f69220?style=flat">
+  <img alt="pnpm" src="https://img.shields.io/badge/pnpm-11.x-f69220?style=flat">
   <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ed?style=flat">
   <img alt="License Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-64748b?style=flat">
 </p>
