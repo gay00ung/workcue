@@ -1,6 +1,6 @@
 {
   "name": "@workcue/connector-jira",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Jira issue connector for WorkCue.",
   "type": "module",
   "private": false,

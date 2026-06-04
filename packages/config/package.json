@@ -1,6 +1,6 @@
 {
   "name": "@workcue/config",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "WorkCue local configuration schema, loader, and initializer.",
   "type": "module",
   "private": false,

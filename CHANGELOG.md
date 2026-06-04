@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.1.0-alpha.3 - 2026-06-04
+
+### Added
+
+- Project repository context analyzer for local git repositories.
+- `projects[]` config for repository path, remote URL, default branch, and matching hints.
+- CLI and MCP project context inputs through `--project-path`, `--project-remote`, `projectPath`, and `projectRemote`.
+- `project_context` scoring signal that links work items to repository evidence.
+- Project Context recipe with privacy guidance.
+
+### Changed
+
+- Morning briefs can show concise repository context evidence without local absolute paths.
+- Sync JSON now includes bounded project context summaries for matching work items.
+- README badges now reflect the alpha.3 release and pnpm 11.x development baseline.
+
+### Notes
+
+- Repository scanning is read-only and summarizes branch, dirty state, recent commit subjects, manifest/docs files, and TODO/FIXME markers.
+- Notion page body deep read is still not part of this alpha.
+- Keep `.workcue/config.yml` out of git when it contains private project paths, board URLs, or private remotes.
+
 ## 0.1.0-alpha.2 - 2026-05-29
 
 ### Added
