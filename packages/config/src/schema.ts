@@ -20,6 +20,28 @@ export const WorkCueConfigSchema = z.object({
       handles: z.array(z.string()).default(["you"])
     })
     .default({}),
+  projects: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        name: z.string().optional(),
+        repo: z
+          .object({
+            localPath: z.string().optional(),
+            remoteUrl: z.string().optional(),
+            defaultBranch: z.string().optional()
+          })
+          .default({}),
+        match: z
+          .object({
+            keywords: z.array(z.string()).default([]),
+            labels: z.array(z.string()).default([]),
+            sourceUrls: z.array(z.string()).default([])
+          })
+          .default({})
+      })
+    )
+    .default([]),
   sources: z
     .object({
       github: z

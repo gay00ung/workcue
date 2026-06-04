@@ -9,6 +9,7 @@ export type {
   SignalKind,
   WorkItem,
   WorkItemPriority,
+  WorkItemProjectContext,
   WorkItemSource,
   WorkItemStatus
 } from "./schema.js";
@@ -19,6 +20,7 @@ export {
   SignalKindSchema,
   SignalSchema,
   WorkItemPrioritySchema,
+  WorkItemProjectContextSchema,
   WorkItemSchema,
   WorkItemSourceSchema,
   WorkItemStatusSchema

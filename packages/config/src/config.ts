@@ -9,6 +9,8 @@ export interface InitConfigOptions {
   markdownOutput?: string;
   dailyNote?: string;
   notionBoard?: string;
+  projectPath?: string;
+  projectRemote?: string;
 }
 
 export function defaultConfigPath(): string {
@@ -39,6 +41,7 @@ export function createInitialConfig(options: InitConfigOptions = {}): WorkCueCon
     user: {
       handles: ["you"]
     },
+    projects: buildInitialProjects(options),
     sources: {
       github: {
         enabled: false,
@@ -105,6 +108,29 @@ export function createInitialConfig(options: InitConfigOptions = {}): WorkCueCon
       apiKeyEnv: "OPENAI_API_KEY"
     }
   });
+}
+
+function buildInitialProjects(options: InitConfigOptions): WorkCueConfig["projects"] {
+  if (!options.projectPath && !options.projectRemote) {
+    return [];
+  }
+  const project: WorkCueConfig["projects"][number] = {
+    id: "default",
+    name: "Default project",
+    repo: {},
+    match: {
+      keywords: [],
+      labels: [],
+      sourceUrls: []
+    }
+  };
+  if (options.projectPath) {
+    project.repo.localPath = options.projectPath;
+  }
+  if (options.projectRemote) {
+    project.repo.remoteUrl = options.projectRemote;
+  }
+  return [project];
 }
 
 export function expandDateTemplate(value: string | undefined, date: string): string | undefined {

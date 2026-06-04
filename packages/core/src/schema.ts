@@ -24,6 +24,24 @@ export const WorkItemSourceSchema = z.enum([
 
 export const WorkItemPrioritySchema = z.enum(["low", "medium", "high", "urgent"]);
 
+export const WorkItemProjectContextSchema = z.object({
+  projectId: z.string().min(1),
+  projectName: z.string().optional(),
+  repoName: z.string().optional(),
+  currentBranch: z.string().optional(),
+  defaultBranch: z.string().optional(),
+  isDirty: z.boolean().optional(),
+  signals: z.array(z.string()).default([]),
+  matchedTerms: z.array(z.string()).default([]),
+  matchedFiles: z.array(z.string()).default([]),
+  recentCommitSubjects: z.array(z.string()).default([]),
+  manifestFiles: z.array(z.string()).default([]),
+  docFiles: z.array(z.string()).default([]),
+  todoFiles: z.array(z.string()).default([]),
+  changedFileCount: z.number().int().nonnegative().optional(),
+  todoCount: z.number().int().nonnegative().optional()
+});
+
 export const WorkItemSchema = z.object({
   id: z.string().min(1),
   source: WorkItemSourceSchema,
@@ -48,6 +66,7 @@ export const WorkItemSchema = z.object({
   parentId: z.string().optional(),
   blockedBy: z.array(z.string()).optional(),
   blocking: z.array(z.string()).optional(),
+  projectContexts: z.array(WorkItemProjectContextSchema).optional(),
   raw: z.unknown().optional()
 });
 
@@ -64,7 +83,8 @@ export const SignalKindSchema = z.enum([
   "blocked",
   "waiting_external",
   "quick_win",
-  "deep_work"
+  "deep_work",
+  "project_context"
 ]);
 
 export const SignalSchema = z.object({
@@ -112,6 +132,7 @@ export const BriefSchema = z.object({
 export type WorkItemStatus = z.infer<typeof WorkItemStatusSchema>;
 export type WorkItemSource = z.infer<typeof WorkItemSourceSchema>;
 export type WorkItemPriority = z.infer<typeof WorkItemPrioritySchema>;
+export type WorkItemProjectContext = z.infer<typeof WorkItemProjectContextSchema>;
 export type WorkItem = z.infer<typeof WorkItemSchema>;
 export type SignalKind = z.infer<typeof SignalKindSchema>;
 export type Signal = z.infer<typeof SignalSchema>;

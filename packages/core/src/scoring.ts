@@ -1,4 +1,11 @@
-import type { Recommendation, RecommendationMode, Signal, SignalKind, WorkItem } from "./schema.js";
+import type {
+  Recommendation,
+  RecommendationMode,
+  Signal,
+  SignalKind,
+  WorkItem,
+  WorkItemProjectContext
+} from "./schema.js";
 
 export interface ScoreOptions {
   date: string;
@@ -146,6 +153,13 @@ function scoreWorkItem(item: WorkItem, options: ScoreOptions): ScoreBreakdown {
     addSignal("waiting_external", -40, "외부 응답을 기다리는 작업입니다.", { status: item.status, labels: item.labels });
   }
 
+  if (item.projectContexts && item.projectContexts.length > 0) {
+    const contextWeight = Math.max(...item.projectContexts.map(scoreProjectContext));
+    addSignal("project_context", contextWeight, buildProjectContextMessage(item.projectContexts), {
+      projectContexts: item.projectContexts.map(serializeProjectContextEvidence)
+    });
+  }
+
   const score = signals.reduce((sum, signal) => sum + signal.weight, 0);
   const positiveSignals = signals.filter((signal) => signal.weight > 0).length;
   const confidence = Math.min(0.95, 0.45 + positiveSignals * 0.1);
@@ -187,6 +201,45 @@ function buildSuggestedAction(item: WorkItem, mode: RecommendationMode): string 
     return "방해받지 않는 집중 시간을 잡고 첫 번째 완료 조건부터 처리하세요.";
   }
   return "오늘 완료 가능한 가장 작은 다음 행동부터 진행하세요.";
+}
+
+function scoreProjectContext(context: WorkItemProjectContext): number {
+  const strongSignals = ["active_branch", "dirty_worktree", "changed_file", "recent_commit"];
+  if (context.signals.some((signal) => strongSignals.includes(signal))) {
+    return 55;
+  }
+  if (context.signals.includes("todo_marker") || context.signals.includes("project_keyword")) {
+    return 40;
+  }
+  return 25;
+}
+
+function buildProjectContextMessage(contexts: WorkItemProjectContext[]): string {
+  const context = contexts[0];
+  if (!context) {
+    return "연결된 프로젝트 레포 맥락이 감지되었습니다.";
+  }
+  const repo = context.repoName ?? context.projectName ?? context.projectId;
+  const branch = context.currentBranch ? ` 현재 branch: ${context.currentBranch}.` : "";
+  const dirty = context.isDirty ? " 변경 중인 파일이 있습니다." : "";
+  return `${repo} 프로젝트 레포 맥락과 연결된 작업입니다.${branch}${dirty}`;
+}
+
+function serializeProjectContextEvidence(context: WorkItemProjectContext): Record<string, unknown> {
+  return {
+    projectId: context.projectId,
+    ...(context.projectName ? { projectName: context.projectName } : {}),
+    ...(context.repoName ? { repoName: context.repoName } : {}),
+    ...(context.currentBranch ? { currentBranch: context.currentBranch } : {}),
+    ...(context.defaultBranch ? { defaultBranch: context.defaultBranch } : {}),
+    ...(typeof context.isDirty === "boolean" ? { isDirty: context.isDirty } : {}),
+    signals: context.signals,
+    matchedTerms: context.matchedTerms.slice(0, 8),
+    matchedFiles: context.matchedFiles.slice(0, 8),
+    recentCommitSubjects: context.recentCommitSubjects.slice(0, 5),
+    ...(typeof context.changedFileCount === "number" ? { changedFileCount: context.changedFileCount } : {}),
+    ...(typeof context.todoCount === "number" ? { todoCount: context.todoCount } : {})
+  };
 }
 
 function isAssignedToUser(item: WorkItem, handles: string[] = []): boolean {

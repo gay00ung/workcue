@@ -1,6 +1,7 @@
 export {
   explainWorkCueItem,
   renderRecommendationExplanation,
+  serializeProjectContext,
   WorkCueRuntimeError,
   runWorkCueToday,
   syncWorkCueSources,

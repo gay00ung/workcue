@@ -85,18 +85,32 @@ function renderRecommendations(recommendations: Recommendation[]): string[] {
     const source = recommendation.workItem.sourceUrl
       ? `${recommendation.workItem.source}: ${recommendation.workItem.sourceUrl}`
       : `${recommendation.workItem.source}: ${recommendation.workItem.sourceId}`;
+    const visibleReasons = recommendation.reasons.filter((reason) => reason.kind !== "project_context").slice(0, 4);
 
     return [
       `${recommendation.rank}. ${recommendation.workItem.title}`,
       `   Score: ${recommendation.score}`,
       "   Why now:",
-      ...recommendation.reasons.slice(0, 4).map((reason) => `   - ${reason.message}`),
+      ...visibleReasons.map((reason) => `   - ${reason.message}`),
+      ...renderProjectContextLines(recommendation),
       "   Suggested action:",
       `   - ${recommendation.suggestedAction}`,
       "   Source:",
       `   - ${source}`,
       ""
     ];
+  });
+}
+
+function renderProjectContextLines(recommendation: Recommendation): string[] {
+  const contexts = recommendation.workItem.projectContexts ?? [];
+  if (contexts.length === 0) {
+    return [];
+  }
+  return contexts.slice(0, 2).map((context) => {
+    const repo = context.repoName ?? context.projectName ?? context.projectId;
+    const branch = context.currentBranch ? `, branch ${context.currentBranch}` : "";
+    return `   - Project context: ${repo}${branch}`;
   });
 }
 
